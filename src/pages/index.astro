@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TagList from '../components/TagList.astro';
+import { formatDate } from '../lib/format';
+import { getBlogPosts, getProjects } from '../lib/sanity';
+
+const posts = (await getBlogPosts()).slice(0, 2);
+const projects = (await getProjects()).slice(0, 2);
+---
+
+<BaseLayout
+  title="BeneLabs - Research-led product studio"
+  description="BeneLabs builds calm, research-led digital experiences for ambitious teams."
+>
+  <section class="site-container pt-10">
+    <div class="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+      <div class="space-y-6 animate-rise">
+        <p class="eyebrow">benelabs.tech</p>
+        <h1 class="text-4xl leading-tight text-balance md:text-5xl">
+          Research-led digital products for calm, deliberate teams.
+        </h1>
+        <p class="text-lg text-pretty">
+          We partner with founders, labs, and operators to turn complex ideas into static-first web experiences
+          that load fast and read beautifully.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a class="button-primary" href="/projects">Explore projects</a>
+          <a class="button-ghost" href="/contact">Start a conversation</a>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag-chip">SSG-first</span>
+          <span class="tag-chip">TypeScript</span>
+          <span class="tag-chip">Notion-like UI</span>
+        </div>
+      </div>
+      <div class="card-surface space-y-5 p-6 animate-rise animate-rise-delay-1 lg:p-8">
+        <div class="flex items-center justify-between">
+          <span class="eyebrow">Studio focus</span>
+          <span class="text-xs text-[var(--color-ink-subtle)]">2024</span>
+        </div>
+        <h2 class="text-2xl">Clear research, confident action.</h2>
+        <p class="text-sm text-[var(--color-ink-muted)]">
+          We blend strategy, design, and engineering to ship static-first pages with editorial polish.
+        </p>
+        <ul class="space-y-4 text-sm text-[var(--color-ink-muted)]">
+          <li class="flex items-start gap-3">
+            <span class="tag-chip">01</span>
+            <div>
+              <div class="font-semibold text-[var(--color-ink)]">Product discovery</div>
+              <div>Research sprints, mapping, and narrative definition.</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="tag-chip">02</span>
+            <div>
+              <div class="font-semibold text-[var(--color-ink)]">Design systems</div>
+              <div>Notion-like UI patterns, tokens, and type hierarchy.</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="tag-chip">03</span>
+            <div>
+              <div class="font-semibold text-[var(--color-ink)]">Static execution</div>
+              <div>Astro + Sanity for speed, SEO, and autonomy.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="site-container section-block">
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="card-surface card-link space-y-3 p-6 animate-rise">
+        <p class="eyebrow">Experiments</p>
+        <h3 class="text-xl">Concept to pilot</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">
+          Rapid research and story-first prototypes that keep momentum high.
+        </p>
+      </div>
+      <div class="card-surface card-link space-y-3 p-6 animate-rise animate-rise-delay-1">
+        <p class="eyebrow">Systems</p>
+        <h3 class="text-xl">Content infrastructure</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">
+          Structured content models in Sanity, tuned for SEO and reuse.
+        </p>
+      </div>
+      <div class="card-surface card-link space-y-3 p-6 animate-rise animate-rise-delay-2">
+        <p class="eyebrow">Delivery</p>
+        <h3 class="text-xl">Static launch kits</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">
+          Astro builds with TypeScript confidence, deployable in minutes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="site-container section-block">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="space-y-2">
+        <p class="eyebrow">Selected projects</p>
+        <h2 class="text-3xl">Recent studio work</h2>
+      </div>
+      <a class="button-ghost" href="/projects">View all projects</a>
+    </div>
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+      {projects.map((project) => (
+        <article class="card-surface card-link flex h-full flex-col gap-4 p-6">
+          <div class="flex items-center justify-between">
+            <span class="eyebrow">Project</span>
+            <span class="text-xs text-[var(--color-ink-subtle)]">
+              {formatDate(project.publishedAt)}
+            </span>
+          </div>
+          <div class="space-y-3">
+            <h3 class="text-2xl">{project.title}</h3>
+            <p class="text-sm text-[var(--color-ink-muted)]">{project.summary}</p>
+          </div>
+          <TagList tags={project.techStack ?? []} />
+          <a class="mt-auto text-sm font-semibold text-[var(--color-accent)]" href={`/projects/${project.slug}`}>
+            View project ->
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="site-container section-block">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="space-y-2">
+        <p class="eyebrow">Latest writing</p>
+        <h2 class="text-3xl">From the lab journal</h2>
+      </div>
+      <a class="button-ghost" href="/blog">View all posts</a>
+    </div>
+    <div class="mt-8 grid gap-6 md:grid-cols-2">
+      {posts.map((post) => (
+        <article class="card-surface card-link flex h-full flex-col gap-4 p-6">
+          <div class="flex items-center justify-between">
+            <span class="eyebrow">Journal</span>
+            <span class="text-xs text-[var(--color-ink-subtle)]">{formatDate(post.publishedAt)}</span>
+          </div>
+          <div class="space-y-3">
+            <h3 class="text-2xl">{post.title}</h3>
+            <p class="text-sm text-[var(--color-ink-muted)]">{post.excerpt}</p>
+          </div>
+          <TagList tags={post.tags ?? []} />
+          <a class="mt-auto text-sm font-semibold text-[var(--color-accent)]" href={`/blog/${post.slug}`}>
+            Read article ->
+          </a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="site-container section-block">
+    <div class="card-surface flex flex-col gap-6 p-8 md:flex-row md:items-center md:justify-between">
+      <div class="space-y-2">
+        <p class="eyebrow">Next steps</p>
+        <h2 class="text-3xl">Ready to build a calm, fast web presence?</h2>
+        <p class="text-sm text-[var(--color-ink-muted)]">
+          We can audit your content model, design a Notion-like UI system, and ship static pages in weeks.
+        </p>
+      </div>
+      <a class="button-primary" href="/contact">Book a discovery call</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { formatDate } from '../../lib/format';
+import { getProjects } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const description = project.seo?.description ?? project.summary ?? `Case study: ${project.title}.`;
+const content = project.content ?? '<p>Full case study coming soon.</p>';
+const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const pageUrl = new URL(`/projects/${project.slug}`, siteUrl).toString();
+const fallbackImage = new URL('/og/default.svg', siteUrl).toString();
+const imageUrl = project.coverImage?.url ?? fallbackImage;
+const normalizeDate = (value) => {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+};
+const publishedTime = normalizeDate(project.publishedAt);
+const keywords = (project.techStack ?? []).filter(Boolean).join(', ');
+const projectLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: project.title,
+  description,
+  url: pageUrl,
+  image: imageUrl,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  ...(keywords ? { keywords } : {}),
+  ...(publishedTime ? { datePublished: publishedTime } : {}),
+  author: {
+    '@type': 'Organization',
+    name: 'BeneLabs',
+    url: siteUrl,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'BeneLabs',
+    url: siteUrl,
+  },
+};
+---
+
+<BaseLayout
+  title={`${project.seo?.title ?? project.title} | BeneLabs`}
+  description={description}
+  ogType="article"
+  ogImage={imageUrl}
+  ogImageAlt={project.coverImage?.alt ?? project.title}
+  publishedTime={publishedTime}
+  structuredData={projectLd}
+>
+  <article class="site-container section-block">
+    <div class="mx-auto max-w-[var(--content-narrow)] space-y-6">
+      <div class="space-y-4">
+        <a class="eyebrow" href="/projects">Back to projects</a>
+        <h1 class="text-4xl">{project.title}</h1>
+        <p class="text-lg text-[var(--color-ink-muted)]">{project.summary}</p>
+        <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-ink-subtle)]">
+          <span>{formatDate(project.publishedAt)}</span>
+          <TagList tags={project.techStack ?? []} />
+        </div>
+      </div>
+      {project.coverImage ? (
+        <img
+          class="card-surface h-64 w-full object-cover"
+          src={project.coverImage.url}
+          alt={project.coverImage.alt ?? project.title}
+          loading="lazy"
+        />
+      ) : null}
+      <div class="prose max-w-none" set:html={content} />
+      {project.links?.length ? (
+        <div class="card-surface space-y-3 p-6">
+          <div class="eyebrow">Project links</div>
+          <div class="flex flex-col gap-2 text-sm text-[var(--color-ink-muted)]">
+            {project.links.map((link) => (
+              <a class="hover:text-[var(--color-accent)]" href={link.url}>
+                {link.label} ->
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  </article>
+</BaseLayout>

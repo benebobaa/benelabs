@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPageBySlug } from '../lib/sanity';
+
+const page = await getPageBySlug('contact');
+const title = page?.seo?.title ?? 'Contact | BeneLabs';
+const description = page?.seo?.description ?? 'Contact BeneLabs to discuss research-led product work.';
+const heading = page?.title ?? "Let's build something calm and credible.";
+const intro =
+  page?.intro ??
+  'Share a few details about your project and we will respond within two business days.';
+const body =
+  page?.content ??
+  `<p>We partner with teams that value clarity, speed, and a structured content system. If you are exploring
+  a redesign, launch, or research sprint, we can help shape the plan.</p>`;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="site-container section-block">
+    <div class="grid gap-10 lg:grid-cols-[1fr_0.9fr]">
+      <div class="space-y-4">
+        <p class="eyebrow">Contact</p>
+        <h1 class="text-4xl">{heading}</h1>
+        <p class="text-lg text-pretty">{intro}</p>
+        <div class="prose max-w-none" set:html={body} />
+        <div class="card-surface space-y-3 p-6 text-sm text-[var(--color-ink-muted)]">
+          <div class="eyebrow">Direct line</div>
+          <a class="text-base font-semibold text-[var(--color-accent)]" href="mailto:hello@benelabs.tech">
+            hello@benelabs.tech
+          </a>
+          <p>Europe-based, working globally on research, design systems, and static delivery.</p>
+        </div>
+      </div>
+      <form class="card-surface grid gap-4 p-6">
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-[var(--color-ink)]" for="name">Name</label>
+          <input
+            class="rounded-[var(--radius-sm)] border border-[var(--color-border)] px-3 py-2 text-sm"
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Your name"
+          />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-[var(--color-ink)]" for="email">Email</label>
+          <input
+            class="rounded-[var(--radius-sm)] border border-[var(--color-border)] px-3 py-2 text-sm"
+            id="email"
+            name="email"
+            type="email"
+            placeholder="you@company.com"
+          />
+        </div>
+        <div class="grid gap-2">
+          <label class="text-sm font-semibold text-[var(--color-ink)]" for="details">Project details</label>
+          <textarea
+            class="min-h-[140px] rounded-[var(--radius-sm)] border border-[var(--color-border)] px-3 py-2 text-sm"
+            id="details"
+            name="details"
+            placeholder="Tell us about your timeline, goals, and scope."
+          ></textarea>
+        </div>
+        <button class="button-primary w-fit" type="submit">Send message</button>
+        <p class="text-xs text-[var(--color-ink-subtle)]">
+          Connect this form to your preferred handler (Formspree, Basin, or custom).
+        </p>
+      </form>
+    </div>
+  </section>
+</BaseLayout>

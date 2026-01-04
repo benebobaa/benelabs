@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPageBySlug } from '../lib/sanity';
+
+const page = await getPageBySlug('about');
+const title = page?.seo?.title ?? 'About | BeneLabs';
+const description =
+  page?.seo?.description ??
+  'Learn about BeneLabs and how the studio builds calm, research-led products.';
+const heading = page?.title ?? 'BeneLabs is a studio for deliberate teams.';
+const intro =
+  page?.intro ??
+  'We work with ambitious founders and operators who want clarity, calm, and speed. Our projects blend research, narrative design, and engineering into static-first experiences that feel editorial and trustworthy.';
+const body =
+  page?.content ??
+  `<p>The studio exists to help teams communicate complex ideas without overwhelming their audiences. We listen closely,
+  identify the signal, and express it through clean structure, balanced typography, and highly legible layouts.</p>
+  <p>BeneLabs works as a small, senior team. That means fewer handoffs, faster decisions, and a shared standard for craft.</p>`;
+const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const pageUrl = new URL('/about', siteUrl).toString();
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Benediktus Satriya',
+  url: pageUrl,
+  jobTitle: 'Founder',
+  worksFor: {
+    '@type': 'Organization',
+    name: 'BeneLabs',
+    url: siteUrl,
+  },
+};
+---
+
+<BaseLayout title={title} description={description} structuredData={personLd}>
+  <section class="site-container section-block">
+    <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+      <div class="space-y-4">
+        <p class="eyebrow">About</p>
+        <h1 class="text-4xl">{heading}</h1>
+        <p class="text-lg text-pretty">{intro}</p>
+        <div class="prose max-w-none" set:html={body} />
+      </div>
+      <div class="card-surface space-y-5 p-6">
+        <div class="eyebrow">What we value</div>
+        <ul class="space-y-4 text-sm text-[var(--color-ink-muted)]">
+          <li>
+            <span class="font-semibold text-[var(--color-ink)]">Clarity first.</span> Every page should answer the
+            next question.
+          </li>
+          <li>
+            <span class="font-semibold text-[var(--color-ink)]">Calm momentum.</span> Move quickly without visual
+            noise.
+          </li>
+          <li>
+            <span class="font-semibold text-[var(--color-ink)]">Systems over one-offs.</span> Components and
+            content models that scale.
+          </li>
+        </ul>
+        <div class="border-t border-[var(--color-border)] pt-4 text-sm text-[var(--color-ink-muted)]">
+          Based in Europe, working globally.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="site-container section-block">
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="card-surface card-link space-y-3 p-6">
+        <p class="eyebrow">Research</p>
+        <h3 class="text-xl">Insight sprints</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">Interviews, positioning, and narrative mapping.</p>
+      </div>
+      <div class="card-surface card-link space-y-3 p-6">
+        <p class="eyebrow">Design</p>
+        <h3 class="text-xl">Notion-like systems</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">Typography-forward UI with calm motion.</p>
+      </div>
+      <div class="card-surface card-link space-y-3 p-6">
+        <p class="eyebrow">Build</p>
+        <h3 class="text-xl">Static-first stacks</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">Astro, TypeScript, and headless CMS.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

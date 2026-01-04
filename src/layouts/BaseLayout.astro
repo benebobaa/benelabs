@@ -1,0 +1,79 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+const {
+  title = 'BeneLabs',
+  description = 'BeneLabs is a research-led product studio building calm, high-signal digital experiences.',
+  ogImage,
+  ogImageAlt = title,
+  ogType = 'website',
+  twitterCard = 'summary_large_image',
+  publishedTime,
+  modifiedTime,
+  structuredData,
+} = Astro.props;
+
+const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const canonical = new URL(Astro.url.pathname, siteUrl);
+const imagePath = ogImage ?? '/og/default.svg';
+const ogImageUrl = new URL(imagePath, siteUrl).toString();
+const ogImageType = ogImageUrl.endsWith('.png')
+  ? 'image/png'
+  : ogImageUrl.endsWith('.jpg') || ogImageUrl.endsWith('.jpeg')
+    ? 'image/jpeg'
+    : 'image/svg+xml';
+const structuredDataJson = structuredData
+  ? JSON.stringify(structuredData).replace(/</g, '\\u003c')
+  : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f7f6f2" />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="BeneLabs" />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:image:type" content={ogImageType} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content={twitterCard} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    {publishedTime ? <meta property="article:published_time" content={publishedTime} /> : null}
+    {modifiedTime ? <meta property="article:modified_time" content={modifiedTime} /> : null}
+    {structuredDataJson ? (
+      <script type="application/ld+json" set:html={structuredDataJson} />
+    ) : null}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="page-shell">
+      <SiteHeader />
+      <main class="flex-1">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+  </body>
+</html>

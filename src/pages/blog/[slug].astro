@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TagList from '../../components/TagList.astro';
+import { formatDate } from '../../lib/format';
+import { getBlogPosts } from '../../lib/sanity';
+
+export async function getStaticPaths() {
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const description = post.seo?.description ?? post.excerpt ?? `Read ${post.title}.`;
+const content = post.content ?? '<p>Content coming soon.</p>';
+const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const pageUrl = new URL(`/blog/${post.slug}`, siteUrl).toString();
+const fallbackImage = new URL('/og/default.svg', siteUrl).toString();
+const imageUrl = post.coverImage?.url ?? fallbackImage;
+const normalizeDate = (value) => {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+};
+const publishedTime = normalizeDate(post.publishedAt);
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description,
+  mainEntityOfPage: pageUrl,
+  url: pageUrl,
+  image: imageUrl,
+  ...(publishedTime ? { datePublished: publishedTime, dateModified: publishedTime } : {}),
+  author: {
+    '@type': 'Person',
+    name: 'Benediktus Satriya',
+    url: new URL('/about', siteUrl).toString(),
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'BeneLabs',
+    url: siteUrl,
+  },
+};
+---
+
+<BaseLayout
+  title={`${post.seo?.title ?? post.title} | BeneLabs`}
+  description={description}
+  ogType="article"
+  ogImage={imageUrl}
+  ogImageAlt={post.coverImage?.alt ?? post.title}
+  publishedTime={publishedTime}
+  structuredData={articleLd}
+>
+  <article class="site-container section-block">
+    <div class="mx-auto max-w-[var(--content-narrow)] space-y-6">
+      <div class="space-y-4">
+        <a class="eyebrow" href="/blog">Back to blog</a>
+        <h1 class="text-4xl">{post.title}</h1>
+        <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-ink-subtle)]">
+          <span>{formatDate(post.publishedAt)}</span>
+          <TagList tags={post.tags ?? []} />
+        </div>
+      </div>
+      {post.coverImage ? (
+        <img
+          class="card-surface h-64 w-full object-cover"
+          src={post.coverImage.url}
+          alt={post.coverImage.alt ?? post.title}
+          loading="lazy"
+        />
+      ) : null}
+      <div class="prose max-w-none" set:html={content} />
+    </div>
+  </article>
+</BaseLayout>
