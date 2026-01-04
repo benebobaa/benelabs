@@ -86,9 +86,14 @@ const normalizeStringArray = (input: unknown) => {
 
 const mapMedia = (input: unknown): Media | undefined => {
   if (!input || typeof input !== 'object') return undefined;
-  const record = input as { url?: string; alt?: string };
+  const record = input as { url?: string; alt?: string; width?: number; height?: number };
   if (!record.url) return undefined;
-  return { url: record.url, alt: record.alt ?? '' };
+  return {
+    url: record.url,
+    alt: record.alt ?? '',
+    width: typeof record.width === 'number' ? record.width : undefined,
+    height: typeof record.height === 'number' ? record.height : undefined,
+  };
 };
 
 const mapLinks = (input: unknown): ProjectLink[] | undefined => {
@@ -126,7 +131,12 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
       content,
       body,
       contentBlocks,
-      "coverImage": { "url": coverImage.asset->url, "alt": coverImage.alt },
+      "coverImage": {
+        "url": coverImage.asset->url,
+        "alt": coverImage.alt,
+        "width": coverImage.asset->metadata.dimensions.width,
+        "height": coverImage.asset->metadata.dimensions.height
+      },
       "tagNames": tags[]->name,
       tags,
       publishedAt,
@@ -166,7 +176,12 @@ export const getProjects = async (): Promise<Project[]> => {
       content,
       body,
       longContent,
-      "coverImage": { "url": coverImage.asset->url, "alt": coverImage.alt },
+      "coverImage": {
+        "url": coverImage.asset->url,
+        "alt": coverImage.alt,
+        "width": coverImage.asset->metadata.dimensions.width,
+        "height": coverImage.asset->metadata.dimensions.height
+      },
       "techStackNames": techStack[]->name,
       techStack,
       stack,

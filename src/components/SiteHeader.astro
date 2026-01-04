@@ -14,8 +14,8 @@ const isActive = (href) =>
     : currentPath === href || currentPath.startsWith(`${href}/`);
 ---
 
-<header class="site-container pt-8">
-  <div class="flex flex-wrap items-center justify-between gap-6">
+<header class="site-container pt-6 md:pt-8">
+  <div class="flex items-center justify-between gap-4">
     <a href="/" class="flex items-center gap-3">
       <span class="grid h-11 w-11 place-items-center rounded-[14px] bg-[var(--color-accent)] text-sm font-semibold text-white">
         BL
@@ -25,41 +25,93 @@ const isActive = (href) =>
         <div class="text-sm text-[var(--color-ink-subtle)]">Calm product research studio</div>
       </div>
     </a>
-    <nav class="hidden items-center gap-2 text-sm font-medium text-[var(--color-ink-subtle)] md:flex">
-      {navItems.map((item) => (
-        <a
-          href={item.href}
-          aria-current={isActive(item.href) ? 'page' : undefined}
-          class:list={[
-            'rounded-full px-3 py-2 transition',
-            isActive(item.href)
-              ? 'bg-white text-[var(--color-ink)] shadow-sm'
-              : 'hover:text-[var(--color-ink)]',
-          ]}
-        >
-          {item.label}
+    <div class="flex items-center gap-3">
+      <nav class="hidden items-center gap-2 text-sm font-medium text-[var(--color-ink-subtle)] md:flex">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+            data-analytics="nav"
+            data-label={item.label}
+            class:list={[
+              'inline-flex min-h-[44px] items-center justify-center rounded-full px-4 py-2.5 transition',
+              isActive(item.href)
+                ? 'bg-white text-[var(--color-ink)] shadow-sm'
+                : 'hover:text-[var(--color-ink)]',
+            ]}
+          >
+            {item.label}
+          </a>
+        ))}
+      </nav>
+      <div class="hidden md:flex">
+        <a class="button-primary" href="/contact" data-analytics="cta" data-label="header_start_project">
+          Start a project
         </a>
-      ))}
-    </nav>
-    <div class="hidden md:flex">
-      <a class="button-primary" href="/contact">Start a project</a>
+      </div>
+      <details class="relative md:hidden" data-drawer>
+        <summary
+          class="button-ghost min-h-[44px] list-none px-4 py-2.5 text-sm cursor-pointer"
+          aria-label="Open menu"
+        >
+          Menu
+        </summary>
+        <button
+          type="button"
+          class="fixed inset-0 z-40 bg-black/30"
+          aria-label="Close menu"
+          data-drawer-close
+        ></button>
+        <div class="fixed right-0 top-0 z-50 h-full w-72 max-w-[85vw] bg-[var(--color-surface)] p-6 shadow-2xl">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-[var(--color-ink)]">Navigation</span>
+            <button class="button-ghost px-3 py-2 text-xs" type="button" data-drawer-close>
+              Close
+            </button>
+          </div>
+          <div class="mt-6 grid gap-2 text-sm font-medium text-[var(--color-ink-muted)]">
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                data-analytics="nav"
+                data-label={item.label}
+                data-drawer-close
+                class:list={[
+                  'flex min-h-[44px] items-center rounded-xl px-3',
+                  isActive(item.href) ? 'bg-[var(--color-warm)] text-[var(--color-ink)]' : '',
+                ]}
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+          <div class="mt-6">
+            <a
+              class="button-primary w-full justify-center text-sm"
+              href="/contact"
+              data-analytics="cta"
+              data-label="mobile_start_project"
+              data-drawer-close
+            >
+              Start a project
+            </a>
+          </div>
+        </div>
+      </details>
     </div>
   </div>
-  <div class="mt-5 flex flex-wrap gap-2 md:hidden">
-    {navItems.map((item) => (
-      <a
-        href={item.href}
-        aria-current={isActive(item.href) ? 'page' : undefined}
-        class:list={[
-          'rounded-full border px-3 py-2 text-sm font-medium',
-          isActive(item.href)
-            ? 'border-transparent bg-white text-[var(--color-ink)] shadow-sm'
-            : 'border-[var(--color-border)] text-[var(--color-ink-subtle)]',
-        ]}
-      >
-        {item.label}
-      </a>
-    ))}
-    <a class="button-primary text-sm" href="/contact">Start a project</a>
-  </div>
 </header>
+
+<script>
+  const drawers = document.querySelectorAll('[data-drawer]');
+  drawers.forEach((drawer) => {
+    drawer.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest('[data-drawer-close]')) {
+        drawer.open = false;
+      }
+    });
+  });
+</script>

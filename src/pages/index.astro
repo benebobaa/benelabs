@@ -16,7 +16,7 @@ const projects = (await getProjects()).slice(0, 2);
     <div class="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
       <div class="space-y-6 animate-rise">
         <p class="eyebrow">benelabs.tech</p>
-        <h1 class="text-4xl leading-tight text-balance md:text-5xl">
+        <h1 class="text-3xl leading-tight text-balance md:text-5xl">
           Research-led digital products for calm, deliberate teams.
         </h1>
         <p class="text-lg text-pretty">
@@ -24,8 +24,12 @@ const projects = (await getProjects()).slice(0, 2);
           that load fast and read beautifully.
         </p>
         <div class="flex flex-wrap gap-3">
-          <a class="button-primary" href="/projects">Explore projects</a>
-          <a class="button-ghost" href="/contact">Start a conversation</a>
+          <a class="button-primary" href="/projects" data-analytics="cta" data-label="home_explore_projects">
+            Explore projects
+          </a>
+          <a class="button-ghost" href="/contact" data-analytics="cta" data-label="home_start_conversation">
+            Start a conversation
+          </a>
         </div>
         <div class="flex flex-wrap gap-2">
           <span class="tag-chip">SSG-first</span>
@@ -38,7 +42,7 @@ const projects = (await getProjects()).slice(0, 2);
           <span class="eyebrow">Studio focus</span>
           <span class="text-xs text-[var(--color-ink-subtle)]">2024</span>
         </div>
-        <h2 class="text-2xl">Clear research, confident action.</h2>
+        <h2 class="text-xl md:text-2xl">Clear research, confident action.</h2>
         <p class="text-sm text-[var(--color-ink-muted)]">
           We blend strategy, design, and engineering to ship static-first pages with editorial polish.
         </p>
@@ -99,9 +103,11 @@ const projects = (await getProjects()).slice(0, 2);
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="space-y-2">
         <p class="eyebrow">Selected projects</p>
-        <h2 class="text-3xl">Recent studio work</h2>
+        <h2 class="text-2xl md:text-3xl">Recent studio work</h2>
       </div>
-      <a class="button-ghost" href="/projects">View all projects</a>
+      <a class="button-ghost" href="/projects" data-analytics="cta" data-label="home_view_projects">
+        View all projects
+      </a>
     </div>
     <div class="mt-8 grid gap-6 md:grid-cols-2">
       {projects.map((project) => (
@@ -113,11 +119,14 @@ const projects = (await getProjects()).slice(0, 2);
             </span>
           </div>
           <div class="space-y-3">
-            <h3 class="text-2xl">{project.title}</h3>
+            <h3 class="text-xl md:text-2xl">{project.title}</h3>
             <p class="text-sm text-[var(--color-ink-muted)]">{project.summary}</p>
           </div>
           <TagList tags={project.techStack ?? []} />
-          <a class="mt-auto text-sm font-semibold text-[var(--color-accent)]" href={`/projects/${project.slug}`}>
+          <a
+            class="mt-auto inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-accent)]"
+            href={`/projects/${project.slug}`}
+          >
             View project ->
           </a>
         </article>
@@ -129,9 +138,11 @@ const projects = (await getProjects()).slice(0, 2);
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="space-y-2">
         <p class="eyebrow">Latest writing</p>
-        <h2 class="text-3xl">From the lab journal</h2>
+        <h2 class="text-2xl md:text-3xl">From the lab journal</h2>
       </div>
-      <a class="button-ghost" href="/blog">View all posts</a>
+      <a class="button-ghost" href="/blog" data-analytics="cta" data-label="home_view_blog">
+        View all posts
+      </a>
     </div>
     <div class="mt-8 grid gap-6 md:grid-cols-2">
       {posts.map((post) => (
@@ -141,11 +152,14 @@ const projects = (await getProjects()).slice(0, 2);
             <span class="text-xs text-[var(--color-ink-subtle)]">{formatDate(post.publishedAt)}</span>
           </div>
           <div class="space-y-3">
-            <h3 class="text-2xl">{post.title}</h3>
+            <h3 class="text-xl md:text-2xl">{post.title}</h3>
             <p class="text-sm text-[var(--color-ink-muted)]">{post.excerpt}</p>
           </div>
           <TagList tags={post.tags ?? []} />
-          <a class="mt-auto text-sm font-semibold text-[var(--color-accent)]" href={`/blog/${post.slug}`}>
+          <a
+            class="mt-auto inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-accent)]"
+            href={`/blog/${post.slug}`}
+          >
             Read article ->
           </a>
         </article>
@@ -157,12 +171,14 @@ const projects = (await getProjects()).slice(0, 2);
     <div class="card-surface flex flex-col gap-6 p-8 md:flex-row md:items-center md:justify-between">
       <div class="space-y-2">
         <p class="eyebrow">Next steps</p>
-        <h2 class="text-3xl">Ready to build a calm, fast web presence?</h2>
+        <h2 class="text-2xl md:text-3xl">Ready to build a calm, fast web presence?</h2>
         <p class="text-sm text-[var(--color-ink-muted)]">
           We can audit your content model, design a Notion-like UI system, and ship static pages in weeks.
         </p>
       </div>
-      <a class="button-primary" href="/contact">Book a discovery call</a>
+      <a class="button-primary" href="/contact" data-analytics="cta" data-label="home_book_call">
+        Book a discovery call
+      </a>
     </div>
   </section>
 </BaseLayout>

@@ -6,6 +6,8 @@ export type SeoMeta = {
 export type Media = {
   url: string;
   alt?: string;
+  width?: number;
+  height?: number;
 };
 
 export type BlogPost = {

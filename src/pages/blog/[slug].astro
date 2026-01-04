@@ -56,25 +56,143 @@ const articleLd = {
   publishedTime={publishedTime}
   structuredData={articleLd}
 >
-  <article class="site-container section-block">
+  <div class="reading-progress" aria-hidden="true">
+    <span class="reading-progress__bar" data-reading-progress></span>
+  </div>
+  <article
+    class="site-container section-block"
+    data-analytics-content="blog"
+    data-analytics-slug={post.slug}
+    data-analytics-title={post.title}
+  >
     <div class="mx-auto max-w-[var(--content-narrow)] space-y-6">
       <div class="space-y-4">
-        <a class="eyebrow" href="/blog">Back to blog</a>
-        <h1 class="text-4xl">{post.title}</h1>
+        <a class="eyebrow inline-flex min-h-[44px] items-center" href="/blog">Back to blog</a>
+        <h1 class="text-3xl md:text-4xl">{post.title}</h1>
         <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-ink-subtle)]">
           <span>{formatDate(post.publishedAt)}</span>
           <TagList tags={post.tags ?? []} />
         </div>
       </div>
+      <details class="toc-panel card-surface p-4" data-toc-panel>
+        <summary class="flex min-h-[44px] items-center justify-between text-sm">
+          Contents
+          <span class="text-xs text-[var(--color-ink-subtle)]">Tap to expand</span>
+        </summary>
+        <ol class="toc-list" data-toc></ol>
+      </details>
       {post.coverImage ? (
         <img
           class="card-surface h-64 w-full object-cover"
           src={post.coverImage.url}
           alt={post.coverImage.alt ?? post.title}
+          width={post.coverImage.width}
+          height={post.coverImage.height}
+          sizes="(min-width: 768px) 760px, 100vw"
           loading="lazy"
+          decoding="async"
         />
       ) : null}
       <div class="prose max-w-none" set:html={content} />
     </div>
   </article>
+  <script>
+    const article = document.querySelector('[data-analytics-content="blog"]');
+    const progressBar = document.querySelector('[data-reading-progress]');
+    const tocPanel = document.querySelector('[data-toc-panel]');
+    const tocList = document.querySelector('[data-toc]');
+
+    if (article) {
+      const content = article.querySelector('.prose');
+
+      if (progressBar && content) {
+        const updateProgress = () => {
+          const start = content.getBoundingClientRect().top + window.scrollY;
+          const end = start + content.offsetHeight - window.innerHeight;
+          const progress = end > start ? (window.scrollY - start) / (end - start) : 0;
+          const clamped = Math.min(Math.max(progress, 0), 1);
+          progressBar.style.transform = `scaleX(${clamped})`;
+        };
+
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        window.addEventListener('resize', updateProgress);
+        updateProgress();
+      }
+
+      if (tocList && content) {
+        const headings = Array.from(content.querySelectorAll('h2, h3'));
+        const slugCounts = {};
+
+        headings.forEach((heading) => {
+          const text = heading.textContent?.trim();
+          if (!text) return;
+
+          let slug = heading.id;
+          if (!slug) {
+            slug = text
+              .toLowerCase()
+              .replace(/[^a-z0-9\\s-]/g, '')
+              .trim()
+              .replace(/\\s+/g, '-');
+            const count = slugCounts[slug] ?? 0;
+            slugCounts[slug] = count + 1;
+            if (count > 0) slug = `${slug}-${count + 1}`;
+            heading.id = slug;
+          }
+
+          const depth = heading.tagName === 'H3' ? '3' : '2';
+          const item = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = `#${slug}`;
+          link.textContent = text;
+          link.className = 'toc-link';
+          link.setAttribute('data-depth', depth);
+          item.appendChild(link);
+          tocList.appendChild(item);
+        });
+
+        if (!tocList.children.length && tocPanel) {
+          tocPanel.classList.add('hidden');
+        }
+      }
+
+      if (content) {
+        const codeBlocks = Array.from(content.querySelectorAll('pre > code'));
+        codeBlocks.forEach((code) => {
+          const pre = code.parentElement;
+          if (!pre || pre.querySelector('.code-copy')) return;
+
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'code-copy';
+          button.textContent = 'Copy';
+
+          button.addEventListener('click', async () => {
+            const text = code.textContent ?? '';
+            try {
+              await navigator.clipboard.writeText(text);
+              button.textContent = 'Copied';
+              setTimeout(() => {
+                button.textContent = 'Copy';
+              }, 2000);
+            } catch {
+              const range = document.createRange();
+              range.selectNodeContents(code);
+              const selection = window.getSelection();
+              selection?.removeAllRanges();
+              selection?.addRange(range);
+              document.execCommand('copy');
+              selection?.removeAllRanges();
+              button.textContent = 'Copied';
+              setTimeout(() => {
+                button.textContent = 'Copy';
+              }, 2000);
+            }
+          });
+
+          pre.appendChild(button);
+        });
+      }
+    }
+  </script>
 </BaseLayout>

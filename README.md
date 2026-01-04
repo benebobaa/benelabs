@@ -33,6 +33,40 @@ The frontend queries these document types and fields:
 - `project`: title, slug, summary (optional), content/body/longContent (Portable Text), coverImage, techStack (array), links (label/url), featured, publishedAt, seo
 - `page`: title, slug, intro (optional), content/body/contentBlocks (Portable Text), seo
 
+## PostHog Analytics
+
+PostHog is wired for manual events (autocapture off) with UTM attribution and optional session replay.
+
+Environment variables:
+
+```bash
+PUBLIC_POSTHOG_KEY=""
+PUBLIC_POSTHOG_HOST="https://app.posthog.com"
+PUBLIC_POSTHOG_CONSENT_REQUIRED="true"
+PUBLIC_POSTHOG_SESSION_REPLAY="false"
+```
+
+Event taxonomy (manual, 8-12 events):
+
+- `page_view`
+- `content_list_view`
+- `content_view`
+- `content_engaged`
+- `cta_click`
+- `nav_click`
+- `contact_form_submit`
+- `contact_email_click`
+- `project_link_click`
+- `outbound_link_click`
+
+Attribution:
+- First-touch UTMs are stored as person props with `first_touch_*`.
+- Last-touch UTMs are stored as person props with `utm_*`.
+
+Consent + session replay:
+- Consent is required when `PUBLIC_POSTHOG_CONSENT_REQUIRED="true"`.
+- Session replay only starts on pages with `enableSessionReplay={true}` (currently `/contact`) and when `PUBLIC_POSTHOG_SESSION_REPLAY="true"`.
+
 ## Commands
 
 | Command       | Action                               |

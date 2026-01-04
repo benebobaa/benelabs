@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import PostHog from '../components/PostHog.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 
 const {
   title = 'BeneLabs',
@@ -13,6 +15,7 @@ const {
   publishedTime,
   modifiedTime,
   structuredData,
+  enableSessionReplay = false,
 } = Astro.props;
 
 const siteUrl = Astro.site ?? 'https://benelabs.tech';
@@ -67,7 +70,7 @@ const structuredDataJson = structuredData
     />
     <title>{title}</title>
   </head>
-  <body>
+  <body data-session-replay={enableSessionReplay ? 'true' : 'false'}>
     <div class="page-shell">
       <SiteHeader />
       <main class="flex-1">
@@ -75,5 +78,7 @@ const structuredDataJson = structuredData
       </main>
       <SiteFooter />
     </div>
+    <ConsentBanner />
+    <PostHog />
   </body>
 </html>

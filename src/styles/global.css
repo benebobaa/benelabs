@@ -59,7 +59,8 @@
   body {
     min-height: 100%;
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.7;
+    font-size: 16px;
     background:
       radial-gradient(1200px circle at 10% -10%, #eef2fb 0%, transparent 45%),
       radial-gradient(900px circle at 90% -15%, #f7efe2 0%, transparent 50%),
@@ -100,6 +101,10 @@
   ::selection {
     background: var(--color-accent-soft);
     color: var(--color-ink);
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
   }
 }
 
@@ -165,6 +170,7 @@
     gap: 8px;
     border-radius: 999px;
     padding: 10px 18px;
+    min-height: 44px;
     font-weight: 600;
     background: var(--color-accent);
     color: #fff;
@@ -184,6 +190,7 @@
     gap: 8px;
     border-radius: 999px;
     padding: 10px 18px;
+    min-height: 44px;
     font-weight: 600;
     border: 1px solid var(--color-border);
     color: var(--color-ink);
@@ -207,6 +214,99 @@
     --tw-prose-hr: var(--color-border);
     --tw-prose-code: var(--color-ink);
     --tw-prose-pre-bg: #f2efe8;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .prose h2 {
+    font-size: 1.65rem;
+    line-height: 1.3;
+    scroll-margin-top: 120px;
+  }
+
+  .prose h3 {
+    font-size: 1.35rem;
+    line-height: 1.35;
+    scroll-margin-top: 120px;
+  }
+
+  .prose pre {
+    position: relative;
+    overflow-x: auto;
+    padding: 18px 16px;
+    border-radius: 12px;
+  }
+
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    z-index: 60;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .reading-progress__bar {
+    display: block;
+    height: 100%;
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, var(--color-accent) 0%, #6fb6f5 100%);
+  }
+
+  .toc-panel summary {
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .toc-panel summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc-list {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: var(--color-ink-muted);
+  }
+
+  .toc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    color: inherit;
+  }
+
+  .toc-link[data-depth='3'] {
+    padding-left: 16px;
+  }
+
+  .code-copy {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: #fff;
+    color: var(--color-ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    min-height: 44px;
   }
 }
 
@@ -259,5 +359,19 @@
   .button-primary,
   .button-ghost {
     transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-container {
+    padding: 0 var(--space-4);
+  }
+
+  .section-block {
+    padding: var(--space-6) 0;
+  }
+
+  .prose {
+    font-size: 1rem;
   }
 }

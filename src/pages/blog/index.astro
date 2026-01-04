@@ -11,10 +11,10 @@ const posts = await getBlogPosts();
   title="Blog | BeneLabs"
   description="Field notes, research, and product thinking from the BeneLabs studio."
 >
-  <section class="site-container section-block">
+  <section class="site-container section-block" data-analytics-list="blog">
     <div class="space-y-3">
       <p class="eyebrow">Blog</p>
-      <h1 class="text-4xl">Field notes & research</h1>
+      <h1 class="text-3xl md:text-4xl">Field notes & research</h1>
       <p class="text-lg text-pretty">
         Essays and observations on building calm interfaces, designing narratives, and shipping fast.
       </p>
@@ -27,7 +27,7 @@ const posts = await getBlogPosts();
             <span>Studio journal</span>
           </div>
           <div class="space-y-3">
-            <h2 class="text-2xl">
+            <h2 class="text-xl md:text-2xl">
               <a class="hover:text-[var(--color-accent)]" href={`/blog/${post.slug}`}>
                 {post.title}
               </a>
@@ -35,7 +35,10 @@ const posts = await getBlogPosts();
             <p class="text-sm text-[var(--color-ink-muted)]">{post.excerpt}</p>
           </div>
           <TagList tags={post.tags ?? []} />
-          <a class="text-sm font-semibold text-[var(--color-accent)]" href={`/blog/${post.slug}`}>
+          <a
+            class="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-accent)]"
+            href={`/blog/${post.slug}`}
+          >
             Read article ->
           </a>
         </article>
