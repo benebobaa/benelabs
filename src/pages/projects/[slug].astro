@@ -68,8 +68,8 @@ const projectLd = {
     <div class="mx-auto max-w-[var(--content-narrow)] space-y-6">
       <div class="space-y-4">
         <a class="eyebrow inline-flex min-h-[44px] items-center" href="/projects">Back to projects</a>
-        <h1 class="text-3xl md:text-4xl">{project.title}</h1>
-        <p class="text-lg text-[var(--color-ink-muted)]">{project.summary}</p>
+        <h1 class="text-[1.8rem] md:text-4xl">{project.title}</h1>
+        <p class="text-base text-[var(--color-ink-muted)] md:text-lg">{project.summary}</p>
         <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-ink-subtle)]">
           <span>{formatDate(project.publishedAt)}</span>
           <TagList tags={project.techStack ?? []} />

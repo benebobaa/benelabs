@@ -54,12 +54,13 @@
     background-color: var(--color-canvas);
     color: var(--color-ink);
     scroll-behavior: smooth;
+    font-size: 16px;
   }
 
   body {
     min-height: 100%;
     margin: 0;
-    line-height: 1.7;
+    line-height: 1.6;
     font-size: 16px;
     background:
       radial-gradient(1200px circle at 10% -10%, #eef2fb 0%, transparent 45%),
@@ -106,6 +107,16 @@
   summary::-webkit-details-marker {
     display: none;
   }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17px;
+    }
+
+    body {
+      line-height: 1.7;
+    }
+  }
 }
 
 @layer components {
@@ -143,12 +154,22 @@
   }
 
   .card-pad {
-    padding: 28px 24px;
+    padding: 24px 20px;
   }
 
   @media (min-width: 768px) {
     .card-pad {
+      padding: 28px 24px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .card-pad {
       padding: 32px 28px;
+    }
+
+    .prose {
+      line-height: 1.75;
     }
   }
 
@@ -166,8 +187,8 @@
 
   @media (max-width: 767px) {
     .full-bleed-mobile {
-      margin-left: calc(var(--space-5) * -1);
-      margin-right: calc(var(--space-5) * -1);
+      margin-left: calc(var(--space-4) * -1);
+      margin-right: calc(var(--space-4) * -1);
     }
 
     .full-bleed-mobile .card-surface {
@@ -250,7 +271,7 @@
     --tw-prose-code: var(--color-ink);
     --tw-prose-pre-bg: #f2efe8;
     font-size: 1rem;
-    line-height: 1.75;
+    line-height: 1.65;
   }
 
   .prose h2 {
@@ -406,7 +427,7 @@
   }
 
   .site-container {
-    padding: 0 var(--space-5);
+    padding: 0 var(--space-4);
   }
 
   .section-block {

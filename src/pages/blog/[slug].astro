@@ -68,7 +68,7 @@ const articleLd = {
     <div class="mx-auto max-w-[var(--content-narrow)] space-y-6">
       <div class="space-y-4">
         <a class="eyebrow inline-flex min-h-[44px] items-center" href="/blog">Back to blog</a>
-        <h1 class="text-3xl md:text-4xl">{post.title}</h1>
+        <h1 class="text-[1.8rem] md:text-4xl">{post.title}</h1>
         <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--color-ink-subtle)]">
           <span>{formatDate(post.publishedAt)}</span>
           <TagList tags={post.tags ?? []} />
