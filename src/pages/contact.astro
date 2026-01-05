@@ -23,7 +23,7 @@ const body =
         <h1 class="text-3xl md:text-4xl">{heading}</h1>
         <p class="text-lg text-pretty">{intro}</p>
         <div class="prose max-w-none" set:html={body} />
-        <div class="card-surface space-y-3 p-6 text-sm text-[var(--color-ink-muted)]">
+        <div class="card-surface card-pad space-y-3 text-sm text-[var(--color-ink-muted)]">
           <div class="eyebrow">Direct line</div>
           <a
             class="text-base font-semibold text-[var(--color-accent)]"
@@ -36,7 +36,7 @@ const body =
           <p>Europe-based, working globally on research, design systems, and static delivery.</p>
         </div>
       </div>
-      <form class="card-surface grid gap-4 p-6">
+      <form class="card-surface card-pad grid gap-4">
         <div class="grid gap-2">
           <label class="text-sm font-semibold text-[var(--color-ink)]" for="name">Name</label>
           <input

@@ -21,7 +21,7 @@ const projects = await getProjects();
     </div>
     <div class="mt-8 grid gap-6 md:grid-cols-2">
       {projects.map((project) => (
-        <article class="card-surface card-link flex h-full flex-col gap-4 p-6">
+        <article class="card-surface card-link card-pad flex h-full flex-col gap-4">
           <div class="flex items-center justify-between text-xs text-[var(--color-ink-subtle)]">
             <span>{formatDate(project.publishedAt)}</span>
             <span>Case study</span>

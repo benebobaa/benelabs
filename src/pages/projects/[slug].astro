@@ -89,7 +89,7 @@ const projectLd = {
       ) : null}
       <div class="prose max-w-none" set:html={content} />
       {project.links?.length ? (
-        <div class="card-surface space-y-3 p-6">
+        <div class="card-surface card-pad space-y-3">
           <div class="eyebrow">Project links</div>
           <div class="flex flex-col gap-2 text-sm text-[var(--color-ink-muted)]">
             {project.links.map((link) => (
