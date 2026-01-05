@@ -427,11 +427,22 @@
   }
 
   .site-container {
-    padding: 0 var(--space-4);
+    padding: 0 var(--space-3);
   }
 
   .section-block {
     padding: var(--space-6) 0;
+  }
+
+  .full-bleed-mobile {
+    margin-left: calc(var(--space-2) * -1);
+    margin-right: calc(var(--space-2) * -1);
+  }
+
+  .full-bleed-mobile .card-surface {
+    border-radius: var(--radius-md);
+    border-left-width: 1px;
+    border-right-width: 1px;
   }
 
   .prose {
