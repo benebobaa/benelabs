@@ -74,7 +74,7 @@ const projects = (await getProjects()).slice(0, 2);
   </section>
 
   <section class="site-container section-block">
-    <div class="grid gap-6 md:grid-cols-3">
+    <div class="full-bleed-mobile grid gap-6 md:grid-cols-3">
       <div class="card-surface card-link card-pad space-y-3 animate-rise">
         <p class="eyebrow">Experiments</p>
         <h3 class="text-xl">Concept to pilot</h3>
@@ -105,11 +105,8 @@ const projects = (await getProjects()).slice(0, 2);
         <p class="eyebrow">Selected projects</p>
         <h2 class="text-2xl md:text-3xl">Recent studio work</h2>
       </div>
-      <a class="button-ghost" href="/projects" data-analytics="cta" data-label="home_view_projects">
-        View all projects
-      </a>
     </div>
-    <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div class="full-bleed-mobile mt-5 grid gap-6 md:grid-cols-2">
       {projects.map((project) => (
         <article class="card-surface card-link card-pad flex h-full flex-col gap-4">
           <div class="flex items-center justify-between">
@@ -132,6 +129,16 @@ const projects = (await getProjects()).slice(0, 2);
         </article>
       ))}
     </div>
+    <div class="mt-5 flex md:justify-end">
+      <a
+        class="button-ghost w-full justify-center md:w-auto"
+        href="/projects"
+        data-analytics="cta"
+        data-label="home_view_projects"
+      >
+        View all projects
+      </a>
+    </div>
   </section>
 
   <section class="site-container section-block">
@@ -140,11 +147,8 @@ const projects = (await getProjects()).slice(0, 2);
         <p class="eyebrow">Latest writing</p>
         <h2 class="text-2xl md:text-3xl">From the lab journal</h2>
       </div>
-      <a class="button-ghost" href="/blog" data-analytics="cta" data-label="home_view_blog">
-        View all posts
-      </a>
     </div>
-    <div class="mt-8 grid gap-6 md:grid-cols-2">
+    <div class="full-bleed-mobile mt-5 grid gap-6 md:grid-cols-2">
       {posts.map((post) => (
         <article class="card-surface card-link card-pad flex h-full flex-col gap-4">
           <div class="flex items-center justify-between">
@@ -164,6 +168,16 @@ const projects = (await getProjects()).slice(0, 2);
           </a>
         </article>
       ))}
+    </div>
+    <div class="mt-5 flex md:justify-end">
+      <a
+        class="button-ghost w-full justify-center md:w-auto"
+        href="/blog"
+        data-analytics="cta"
+        data-label="home_view_blog"
+      >
+        View all posts
+      </a>
     </div>
   </section>
 

@@ -118,7 +118,7 @@
 
   .site-container {
     width: 100%;
-    max-width: var(--content-max);
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 var(--space-5);
   }
@@ -143,12 +143,37 @@
   }
 
   .card-pad {
-    padding: 24px 20px;
+    padding: 28px 24px;
   }
 
   @media (min-width: 768px) {
     .card-pad {
-      padding: 28px 24px;
+      padding: 32px 28px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1279px) {
+    .site-container {
+      max-width: 94vw;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .site-container {
+      max-width: var(--content-max);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .full-bleed-mobile {
+      margin-left: calc(var(--space-5) * -1);
+      margin-right: calc(var(--space-5) * -1);
+    }
+
+    .full-bleed-mobile .card-surface {
+      border-radius: 0;
+      border-left-width: 0;
+      border-right-width: 0;
     }
   }
 
