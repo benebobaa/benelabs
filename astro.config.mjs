@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://benelabs.tech',
+  site: 'https://Benelabs.tech',
   output: 'static',
   integrations: [sitemap()],
   vite: {

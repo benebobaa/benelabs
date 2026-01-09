@@ -3,30 +3,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getPageBySlug } from '../lib/sanity';
 
 const page = await getPageBySlug('about');
-const title = page?.seo?.title ?? 'About | BeneLabs';
+const title = page?.seo?.title ?? 'About | Benelabs';
 const description =
   page?.seo?.description ??
-  'Learn about BeneLabs and how the studio builds calm, research-led products.';
-const heading = page?.title ?? 'BeneLabs is a studio for deliberate teams.';
+  'Learn about Benelabs and how the studio delivers scalable AI, cloud, and backend systems.';
+const heading = page?.title ?? 'Building scalable AI, cloud, and backend solutions.';
 const intro =
   page?.intro ??
-  'We work with ambitious founders and operators who want clarity, calm, and speed. Our projects blend research, narrative design, and engineering into static-first experiences that feel editorial and trustworthy.';
+  'We blend research-driven innovation with practical engineering to deliver systems that scale in production.';
 const body =
   page?.content ??
-  `<p>The studio exists to help teams communicate complex ideas without overwhelming their audiences. We listen closely,
-  identify the signal, and express it through clean structure, balanced typography, and highly legible layouts.</p>
-  <p>BeneLabs works as a small, senior team. That means fewer handoffs, faster decisions, and a shared standard for craft.</p>`;
-const siteUrl = Astro.site ?? 'https://benelabs.tech';
+  `<p>At Benelabs, we focus on backend systems, cloud automation, and AI solutions that simplify complexity. Founded by
+  Benediktus Satriya, the studio brings hands-on experience from enterprise modernization and platform engineering.</p>
+  <p>We are based in Jakarta, Indonesia, and partner globally with teams who want reliable delivery, clear architecture,
+  and maintainable systems.</p>`;
+const siteUrl = Astro.site ?? 'https://Benelabs.tech';
 const pageUrl = new URL('/about', siteUrl).toString();
 const personLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'Benediktus Satriya',
   url: pageUrl,
-  jobTitle: 'Founder',
+  jobTitle: 'Founder, Software Engineer',
+  description:
+    'Software engineer specializing in Golang, Java Spring, and Kubernetes, with experience building scalable backend systems, PaaS platforms, and AI-powered tooling.',
   worksFor: {
     '@type': 'Organization',
-    name: 'BeneLabs',
+    name: 'Benelabs',
     url: siteUrl,
   },
 };
@@ -45,41 +48,51 @@ const personLd = {
         <div class="eyebrow">What we value</div>
         <ul class="space-y-4 text-sm text-[var(--color-ink-muted)]">
           <li>
-            <span class="font-semibold text-[var(--color-ink)]">Clarity first.</span> Every page should answer the
-            next question.
+            <span class="font-semibold text-[var(--color-ink)]">Engineering clarity.</span> Systems that are easy to
+            reason about and operate.
           </li>
           <li>
-            <span class="font-semibold text-[var(--color-ink)]">Calm momentum.</span> Move quickly without visual
-            noise.
+            <span class="font-semibold text-[var(--color-ink)]">Reliability under load.</span> Performance and
+            observability in real-world traffic.
           </li>
           <li>
-            <span class="font-semibold text-[var(--color-ink)]">Systems over one-offs.</span> Components and
-            content models that scale.
+            <span class="font-semibold text-[var(--color-ink)]">Learning and sharing.</span> Open-source contributions
+            and technical education.
           </li>
         </ul>
         <div class="border-t border-[var(--color-border)] pt-4 text-sm text-[var(--color-ink-muted)]">
-          Based in Europe, working globally.
+          Based in Jakarta, Indonesia, working globally.
         </div>
       </div>
     </div>
   </section>
 
   <section class="site-container section-block">
-    <div class="full-bleed-mobile grid gap-6 md:grid-cols-3">
+    <div class="full-bleed-mobile grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <div class="card-surface card-link card-pad space-y-3">
-        <p class="eyebrow">Research</p>
-        <h3 class="text-xl">Insight sprints</h3>
-        <p class="text-sm text-[var(--color-ink-muted)]">Interviews, positioning, and narrative mapping.</p>
+        <p class="eyebrow">Backend</p>
+        <h3 class="text-xl">Microservices</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">REST and gRPC APIs with scalable data layers.</p>
       </div>
       <div class="card-surface card-link card-pad space-y-3">
-        <p class="eyebrow">Design</p>
-        <h3 class="text-xl">Notion-like systems</h3>
-        <p class="text-sm text-[var(--color-ink-muted)]">Typography-forward UI with calm motion.</p>
+        <p class="eyebrow">Cloud</p>
+        <h3 class="text-xl">DevOps automation</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">Kubernetes, GitOps, and self-healing infrastructure.</p>
       </div>
       <div class="card-surface card-link card-pad space-y-3">
-        <p class="eyebrow">Build</p>
-        <h3 class="text-xl">Static-first stacks</h3>
-        <p class="text-sm text-[var(--color-ink-muted)]">Astro, TypeScript, and headless CMS.</p>
+        <p class="eyebrow">AI</p>
+        <h3 class="text-xl">LLM engineering</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">RAG pipelines and multi-agent workflows.</p>
+      </div>
+      <div class="card-surface card-link card-pad space-y-3">
+        <p class="eyebrow">Mobile</p>
+        <h3 class="text-xl">Cross-platform apps</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">Flutter and Kotlin with clean architecture.</p>
+      </div>
+      <div class="card-surface card-link card-pad space-y-3">
+        <p class="eyebrow">Modernization</p>
+        <h3 class="text-xl">Legacy systems</h3>
+        <p class="text-sm text-[var(--color-ink-muted)]">Refactors that improve SLAs and maintainability.</p>
       </div>
     </div>
   </section>

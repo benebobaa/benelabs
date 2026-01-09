@@ -5,18 +5,70 @@ import { formatDate } from '../../lib/format';
 import { getBlogPosts } from '../../lib/sanity';
 
 const posts = await getBlogPosts();
+const mediumProfileUrl = 'https://medium.com/@bensatriya3';
+const mediumFeedUrl = 'https://medium.com/feed/@bensatriya3';
+
+const stripCdata = (value) =>
+  value.replace(/^<!\[CDATA\[/, '').replace(/\]\]>$/, '');
+const stripHtml = (value) =>
+  value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+const decodeEntities = (value) =>
+  value
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+const truncate = (value, max = 180) =>
+  value.length > max ? `${value.slice(0, max).trim()}...` : value;
+const extractTag = (source, tag) => {
+  const match = source.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, 'i'));
+  return match ? match[1].trim() : '';
+};
+
+const fetchMediumPosts = async (limit = 3) => {
+  try {
+    const response = await fetch(mediumFeedUrl);
+    if (!response.ok) return [];
+    const xml = await response.text();
+    const itemsMatch = xml.match(/<item>[\s\S]*?<\/item>/g);
+    const items = Array.isArray(itemsMatch) ? itemsMatch : [];
+    return items
+      .map((item) => {
+        const title = decodeEntities(stripCdata(extractTag(item, 'title')));
+        const url = stripCdata(extractTag(item, 'link'));
+        const publishedAt = stripCdata(extractTag(item, 'pubDate'));
+        const description =
+          extractTag(item, 'description') || extractTag(item, 'content:encoded');
+        const excerpt = truncate(decodeEntities(stripHtml(stripCdata(description))));
+        return {
+          title,
+          url,
+          publishedAt,
+          excerpt,
+        };
+      })
+      .filter((item) => item.title && item.url)
+      .slice(0, limit);
+  } catch (error) {
+    console.warn('Medium RSS fetch failed:', error);
+    return [];
+  }
+};
+
+const mediumPosts = await fetchMediumPosts();
 ---
 
 <BaseLayout
-  title="Blog | BeneLabs"
-  description="Field notes, research, and product thinking from the BeneLabs studio."
+  title="Blog | Benelabs"
+  description="Engineering notes, benchmarks, and AI system design from Benelabs."
 >
   <section class="site-container section-block" data-analytics-list="blog">
     <div class="space-y-3">
       <p class="eyebrow">Blog</p>
-      <h1 class="text-[1.8rem] md:text-4xl">Field notes & research</h1>
+      <h1 class="text-[1.8rem] md:text-4xl">Engineering notes & benchmarks</h1>
       <p class="text-base text-pretty md:text-lg">
-        Essays and observations on building calm interfaces, designing narratives, and shipping fast.
+        Tutorials on cloud, backend, and AI engineering with practical, step-by-step guidance.
       </p>
     </div>
     <div class="full-bleed-mobile mt-5 grid gap-6">
@@ -24,7 +76,7 @@ const posts = await getBlogPosts();
         <article class="card-surface card-link card-pad flex flex-col gap-4">
           <div class="flex items-center justify-between text-xs text-[var(--color-ink-subtle)]">
             <span>{formatDate(post.publishedAt)}</span>
-            <span>Studio journal</span>
+            <span>Engineering journal</span>
           </div>
           <div class="space-y-3">
             <h2 class="text-xl md:text-2xl">
@@ -45,4 +97,54 @@ const posts = await getBlogPosts();
       ))}
     </div>
   </section>
+
+  {mediumPosts.length ? (
+    <section class="site-container section-block" data-analytics-list="medium">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div class="space-y-2">
+          <p class="eyebrow">Also on Medium</p>
+          <h2 class="text-2xl md:text-3xl">Latest Medium articles</h2>
+          <p class="text-sm text-[var(--color-ink-muted)]">
+            We cross-post selected articles to reach more builders. The canonical versions live here.
+          </p>
+        </div>
+        <a
+          class="button-ghost w-full justify-center md:w-auto"
+          href={mediumProfileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Follow on Medium
+        </a>
+      </div>
+      <div class="full-bleed-mobile mt-5 grid gap-6 md:grid-cols-2">
+        {mediumPosts.map((post) => (
+          <article class="card-surface card-link card-pad flex flex-col gap-4">
+            <div class="flex items-center justify-between text-xs text-[var(--color-ink-subtle)]">
+              <span>{formatDate(post.publishedAt)}</span>
+              <span>Medium</span>
+            </div>
+            <div class="space-y-3">
+              <h3 class="text-xl md:text-2xl">
+                <a class="hover:text-[var(--color-accent)]" href={post.url} target="_blank" rel="noopener noreferrer">
+                  {post.title}
+                </a>
+              </h3>
+              {post.excerpt ? (
+                <p class="text-sm text-[var(--color-ink-muted)]">{post.excerpt}</p>
+              ) : null}
+            </div>
+            <a
+              class="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-accent)]"
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read on Medium ->
+            </a>
+          </article>
+        ))}
+      </div>
+    </section>
+  ) : null}
 </BaseLayout>

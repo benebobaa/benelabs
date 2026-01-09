@@ -3,16 +3,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { getPageBySlug } from '../lib/sanity';
 
 const page = await getPageBySlug('contact');
-const title = page?.seo?.title ?? 'Contact | BeneLabs';
-const description = page?.seo?.description ?? 'Contact BeneLabs to discuss research-led product work.';
-const heading = page?.title ?? "Let's build something calm and credible.";
+const title = page?.seo?.title ?? 'Contact | Benelabs';
+const description =
+  page?.seo?.description ?? 'Contact Benelabs to discuss AI, cloud, and backend engineering.';
+const heading = page?.title ?? 'Ready to build something impactful?';
 const intro =
   page?.intro ??
-  'Share a few details about your project and we will respond within two business days.';
+  'Share a few details about your project and we will respond within two business days. The first consultation is free.';
 const body =
   page?.content ??
-  `<p>We partner with teams that value clarity, speed, and a structured content system. If you are exploring
-  a redesign, launch, or research sprint, we can help shape the plan.</p>`;
+  `<p>We help teams with backend modernization, cloud platforms, AI automation, and mobile delivery. If you are unsure
+  where to start, we can help scope the first milestone.</p>`;
 ---
 
 <BaseLayout title={title} description={description} enableSessionReplay={true}>
@@ -27,13 +28,22 @@ const body =
           <div class="eyebrow">Direct line</div>
           <a
             class="text-base font-semibold text-[var(--color-accent)]"
-            href="mailto:hello@benelabs.tech"
+            href="mailto:hello@Benelabs.tech"
             data-analytics="email"
             data-label="contact_email"
           >
-            hello@benelabs.tech
+            hello@Benelabs.tech
           </a>
-          <p>Europe-based, working globally on research, design systems, and static delivery.</p>
+          <a
+            class="text-sm text-[var(--color-ink-muted)]"
+            href="https://www.linkedin.com/in/benediktus-satriya/"
+          >
+            LinkedIn
+          </a>
+          <a class="text-sm text-[var(--color-ink-muted)]" href="https://medium.com/@bensatriya3">
+            Medium
+          </a>
+          <p>Based in Jakarta, Indonesia, working globally on AI, cloud, and backend delivery.</p>
         </div>
       </div>
       <form class="card-surface card-pad grid gap-4">
@@ -67,7 +77,7 @@ const body =
           ></textarea>
         </div>
         <button class="button-primary w-fit" type="submit" data-analytics="contact-submit">
-          Send message
+          Book a free consultation
         </button>
         <p class="text-xs text-[var(--color-ink-subtle)]">
           Connect this form to your preferred handler (Formspree, Basin, or custom).

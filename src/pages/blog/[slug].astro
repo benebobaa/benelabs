@@ -15,7 +15,7 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const description = post.seo?.description ?? post.excerpt ?? `Read ${post.title}.`;
 const content = post.content ?? '<p>Content coming soon.</p>';
-const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const siteUrl = Astro.site ?? 'https://Benelabs.tech';
 const pageUrl = new URL(`/blog/${post.slug}`, siteUrl).toString();
 const fallbackImage = new URL('/og/default.svg', siteUrl).toString();
 const imageUrl = post.coverImage?.url ?? fallbackImage;
@@ -41,14 +41,14 @@ const articleLd = {
   },
   publisher: {
     '@type': 'Organization',
-    name: 'BeneLabs',
+    name: 'Benelabs',
     url: siteUrl,
   },
 };
 ---
 
 <BaseLayout
-  title={`${post.seo?.title ?? post.title} | BeneLabs`}
+  title={`${post.seo?.title ?? post.title} | Benelabs`}
   description={description}
   ogType="article"
   ogImage={imageUrl}
@@ -94,6 +94,19 @@ const articleLd = {
         />
       ) : null}
       <div class="prose max-w-none" set:html={content} />
+      {post.mediumUrl ? (
+        <div class="card-surface card-pad space-y-2">
+          <div class="eyebrow">Also on Medium</div>
+          <a
+            class="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-accent)]"
+            href={post.mediumUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read this article on Medium ->
+          </a>
+        </div>
+      ) : null}
     </div>
   </article>
   <script>

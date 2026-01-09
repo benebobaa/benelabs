@@ -12,7 +12,7 @@ export const sampleBlogPosts: BlogPost[] = [
       <p>Signal design is about removing friction without removing meaning. We start with the most essential
       decision a team needs to make, then work backwards to find the smallest number of inputs that still feel
       trustworthy.</p>
-      <p>At BeneLabs we build interfaces that quiet the background, favoring a soft palette, grounded typography,
+      <p>At Benelabs we build interfaces that quiet the background, favoring a soft palette, grounded typography,
       and a few purposeful interactions over endless micro-animations.</p>
       <p>When a screen makes the next step obvious, people move with confidence. That clarity is measurable.</p>
     `,
@@ -34,8 +34,8 @@ export const sampleBlogPosts: BlogPost[] = [
   },
   {
     id: 3,
-    title: 'Field Notes from BeneLabs',
-    slug: 'field-notes-benelabs',
+    title: 'Field Notes from Benelabs',
+    slug: 'field-notes-Benelabs',
     excerpt: 'A look at how we translate discovery calls into clear, credible product narratives.',
     publishedAt: '2024-07-26',
     tags: ['Storytelling', 'Strategy'],
@@ -56,8 +56,8 @@ export const sampleProjects: Project[] = [
     publishedAt: '2024-10-05',
     techStack: ['Astro', 'Sanity', 'TypeScript'],
     links: [
-      { label: 'Project overview', url: 'https://benelabs.tech/projects/atlas-briefing' },
-      { label: 'Launch memo', url: 'https://benelabs.tech/blog/signals-in-the-noise' },
+      { label: 'Project overview', url: 'https://Benelabs.tech/projects/atlas-briefing' },
+      { label: 'Launch memo', url: 'https://Benelabs.tech/blog/signals-in-the-noise' },
     ],
     content: `
       <p>Atlas Briefing brings a newsroom rhythm to complex intelligence feeds. We designed the experience
@@ -73,7 +73,7 @@ export const sampleProjects: Project[] = [
     summary: 'A quiet control plane for teams that manage infrastructure at high scale.',
     publishedAt: '2024-09-02',
     techStack: ['Design System', 'Observability', 'Research'],
-    links: [{ label: 'Case study', url: 'https://benelabs.tech/projects/calm-ops-console' }],
+    links: [{ label: 'Case study', url: 'https://Benelabs.tech/projects/calm-ops-console' }],
     content: `
       <p>The Calm Ops Console replaces noisy dashboards with a paced, narrative flow. We map alerts into
       short briefings so operators can scan, decide, and move forward without fatigue.</p>
@@ -87,7 +87,7 @@ export const sampleProjects: Project[] = [
     summary: 'A research library for product teams to align on insights and next steps.',
     publishedAt: '2024-07-11',
     techStack: ['Knowledge Ops', 'Content Design'],
-    links: [{ label: 'Read the notes', url: 'https://benelabs.tech/blog/field-notes-benelabs' }],
+    links: [{ label: 'Read the notes', url: 'https://Benelabs.tech/blog/field-notes-Benelabs' }],
     content: `
       <p>Pulse Archive stores decision-ready research artifacts. We organized the library around moments
       of truth, so teams can find answers without hunting through long reports.</p>

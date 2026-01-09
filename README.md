@@ -1,6 +1,6 @@
-# BeneLabs Tech Site
+# Benelabs Tech Site
 
-Astro + Tailwind SSG for benelabs.tech. Static pages are generated for the homepage, blog, projects, and core company pages.
+Astro + Tailwind SSG for Benelabs.tech. Static pages are generated for the homepage, blog, projects, and core company pages.
 
 ## Pages
 
@@ -29,8 +29,8 @@ SANITY_USE_CDN="true"
 
 The frontend queries these document types and fields:
 
-- `post`: title, slug, excerpt (optional), content/body/contentBlocks (Portable Text), coverImage (image + alt), tags (array of refs or strings), publishedAt, seo (title/description)
-- `project`: title, slug, summary (optional), content/body/longContent (Portable Text), coverImage, techStack (array), links (label/url), featured, publishedAt, seo
+- `post`: title, slug, excerpt (optional), content/body/contentBlocks (Portable Text), coverImage (image + alt), tags (array of refs or strings), publishedAt, seo (title/description), mediumUrl (optional)
+- `project`: title, slug, summary (optional), content/body/longContent (Portable Text), coverImage, techStack (array), links (label/url), demoVideo (url/title/caption/poster), featured, publishedAt, seo
 - `page`: title, slug, intro (optional), content/body/contentBlocks (Portable Text), seo
 
 ## PostHog Analytics

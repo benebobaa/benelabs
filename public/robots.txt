@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://benelabs.tech/sitemap.xml
+Sitemap: https://Benelabs.tech/sitemap.xml

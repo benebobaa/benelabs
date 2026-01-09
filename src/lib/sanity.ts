@@ -1,5 +1,5 @@
 import { createClient } from '@sanity/client';
-import type { BlogPost, Project, Media, ProjectLink, SeoMeta, PageContent } from './types';
+import type { BlogPost, Project, Media, ProjectLink, ProjectVideo, SeoMeta, PageContent } from './types';
 import { sampleBlogPosts, sampleProjects } from './sample-content';
 
 const projectId = import.meta.env.SANITY_PROJECT_ID as string | undefined;
@@ -110,6 +110,25 @@ const mapLinks = (input: unknown): ProjectLink[] | undefined => {
   return links.length ? links : undefined;
 };
 
+const mapProjectVideo = (input: unknown): ProjectVideo | undefined => {
+  if (!input || typeof input !== 'object') return undefined;
+  const record = input as {
+    url?: string;
+    title?: string;
+    caption?: string;
+    poster?: unknown;
+  };
+  if (typeof record.url !== 'string' || !record.url.trim()) return undefined;
+  const title = typeof record.title === 'string' ? record.title : undefined;
+  const caption = typeof record.caption === 'string' ? record.caption : undefined;
+  return {
+    url: record.url,
+    title,
+    caption,
+    poster: mapMedia(record.poster),
+  };
+};
+
 const fetchSanity = async <T,>(query: string, params?: Record<string, unknown>): Promise<T | null> => {
   if (!client) return null;
   try {
@@ -131,6 +150,7 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
       content,
       body,
       contentBlocks,
+      mediumUrl,
       "coverImage": {
         "url": coverImage.asset->url,
         "alt": coverImage.alt,
@@ -153,6 +173,10 @@ export const getBlogPosts = async (): Promise<BlogPost[]> => {
       slug: (post.slug as string) ?? '',
       excerpt: (post.excerpt as string) ?? (post.summary as string),
       content: coerceContent(post.content ?? post.body ?? post.contentBlocks),
+      mediumUrl:
+        typeof post.mediumUrl === 'string' && post.mediumUrl.trim().length
+          ? (post.mediumUrl as string)
+          : undefined,
       coverImage: mapMedia(post.coverImage),
       tags: (() => {
         const resolved = normalizeStringArray(post.tagNames);
@@ -186,6 +210,17 @@ export const getProjects = async (): Promise<Project[]> => {
       techStack,
       stack,
       links,
+      demoVideo {
+        title,
+        url,
+        caption,
+        "poster": {
+          "url": poster.asset->url,
+          "alt": poster.alt,
+          "width": poster.asset->metadata.dimensions.width,
+          "height": poster.asset->metadata.dimensions.height
+        }
+      },
       featured,
       publishedAt,
       _createdAt,
@@ -208,6 +243,7 @@ export const getProjects = async (): Promise<Project[]> => {
         return normalizeStringArray(project.techStack ?? project.stack);
       })(),
       links: mapLinks(project.links),
+      demoVideo: mapProjectVideo(project.demoVideo),
       featured: Boolean(project.featured),
       publishedAt: (project.publishedAt as string) ?? (project._createdAt as string) ?? '',
       seo: mapSeo(project.seo as SeoMeta | undefined),

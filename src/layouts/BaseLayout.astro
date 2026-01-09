@@ -6,8 +6,8 @@ import PostHog from '../components/PostHog.astro';
 import ConsentBanner from '../components/ConsentBanner.astro';
 
 const {
-  title = 'BeneLabs',
-  description = 'BeneLabs is a research-led product studio building calm, high-signal digital experiences.',
+  title = 'Benelabs',
+  description = 'Benelabs builds scalable AI, cloud, and backend solutions for tomorrow\'s challenges.',
   ogImage,
   ogImageAlt = title,
   ogType = 'website',
@@ -18,7 +18,7 @@ const {
   enableSessionReplay = false,
 } = Astro.props;
 
-const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const siteUrl = Astro.site ?? 'https://Benelabs.tech';
 const canonical = new URL(Astro.url.pathname, siteUrl);
 const imagePath = ogImage ?? '/og/default.svg';
 const ogImageUrl = new URL(imagePath, siteUrl).toString();
@@ -46,7 +46,7 @@ const structuredDataJson = structuredData
     <meta property="og:description" content={description} />
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:site_name" content="BeneLabs" />
+    <meta property="og:site_name" content="Benelabs" />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:image:type" content={ogImageType} />

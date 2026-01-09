@@ -16,6 +16,7 @@ export type BlogPost = {
   slug: string;
   excerpt?: string;
   content?: string;
+  mediumUrl?: string;
   coverImage?: Media;
   tags?: string[];
   publishedAt?: string;
@@ -25,6 +26,13 @@ export type BlogPost = {
 export type ProjectLink = {
   label: string;
   url: string;
+};
+
+export type ProjectVideo = {
+  url: string;
+  title?: string;
+  caption?: string;
+  poster?: Media;
 };
 
 export type Project = {
@@ -39,6 +47,7 @@ export type Project = {
   featured?: boolean;
   publishedAt?: string;
   seo?: SeoMeta;
+  demoVideo?: ProjectVideo;
 };
 
 export type PageContent = {

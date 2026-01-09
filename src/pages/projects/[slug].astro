@@ -15,7 +15,7 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const description = project.seo?.description ?? project.summary ?? `Case study: ${project.title}.`;
 const content = project.content ?? '<p>Full case study coming soon.</p>';
-const siteUrl = Astro.site ?? 'https://benelabs.tech';
+const siteUrl = Astro.site ?? 'https://Benelabs.tech';
 const pageUrl = new URL(`/projects/${project.slug}`, siteUrl).toString();
 const fallbackImage = new URL('/og/default.svg', siteUrl).toString();
 const imageUrl = project.coverImage?.url ?? fallbackImage;
@@ -39,19 +39,59 @@ const projectLd = {
   ...(publishedTime ? { datePublished: publishedTime } : {}),
   author: {
     '@type': 'Organization',
-    name: 'BeneLabs',
+    name: 'Benelabs',
     url: siteUrl,
   },
   publisher: {
     '@type': 'Organization',
-    name: 'BeneLabs',
+    name: 'Benelabs',
     url: siteUrl,
   },
 };
+
+const getYouTubeId = (url) => {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === 'youtu.be') return parsed.pathname.slice(1) || null;
+    if (parsed.hostname.includes('youtube.com')) {
+      const id = parsed.searchParams.get('v');
+      if (id) return id;
+      const parts = parsed.pathname.split('/');
+      const embedIndex = parts.indexOf('embed');
+      if (embedIndex !== -1 && parts[embedIndex + 1]) return parts[embedIndex + 1];
+    }
+  } catch {
+    return null;
+  }
+  return null;
+};
+
+const getVimeoId = (url) => {
+  try {
+    const parsed = new URL(url);
+    if (!parsed.hostname.includes('vimeo.com')) return null;
+    const parts = parsed.pathname.split('/').filter(Boolean);
+    const id = parts[0];
+    return id && /^[0-9]+$/.test(id) ? id : null;
+  } catch {
+    return null;
+  }
+};
+
+const demoVideo = project.demoVideo;
+const youtubeId = demoVideo?.url ? getYouTubeId(demoVideo.url) : null;
+const vimeoId = demoVideo?.url ? getVimeoId(demoVideo.url) : null;
+const videoEmbed = demoVideo?.url
+  ? youtubeId
+    ? { type: 'youtube', src: `https://www.youtube.com/embed/${youtubeId}` }
+    : vimeoId
+      ? { type: 'vimeo', src: `https://player.vimeo.com/video/${vimeoId}` }
+      : { type: 'file', src: demoVideo.url }
+  : null;
 ---
 
 <BaseLayout
-  title={`${project.seo?.title ?? project.title} | BeneLabs`}
+  title={`${project.seo?.title ?? project.title} | Benelabs`}
   description={description}
   ogType="article"
   ogImage={imageUrl}
@@ -86,6 +126,44 @@ const projectLd = {
           loading="lazy"
           decoding="async"
         />
+      ) : null}
+      {demoVideo?.url ? (
+        <div class="card-surface card-pad space-y-3">
+          <div class="eyebrow">Demo video</div>
+          {videoEmbed?.type === 'file' ? (
+            <video
+              class="w-full rounded-[var(--radius-md)]"
+              src={videoEmbed.src}
+              poster={demoVideo.poster?.url}
+              controls
+              playsinline
+              preload="metadata"
+            />
+          ) : videoEmbed ? (
+            <div class="relative w-full overflow-hidden rounded-[var(--radius-md)] bg-[var(--color-warm)] pb-[56.25%]">
+              <iframe
+                class="absolute inset-0 h-full w-full"
+                src={videoEmbed.src}
+                title={demoVideo.title ?? `${project.title} demo video`}
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              ></iframe>
+            </div>
+          ) : (
+            <a
+              class="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--color-accent)]"
+              href={demoVideo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Watch demo video ->
+            </a>
+          )}
+          {demoVideo.caption ? (
+            <p class="text-sm text-[var(--color-ink-muted)]">{demoVideo.caption}</p>
+          ) : null}
+        </div>
       ) : null}
       <div class="prose max-w-none" set:html={content} />
       {project.links?.length ? (
