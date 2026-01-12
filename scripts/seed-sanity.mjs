@@ -107,7 +107,7 @@ const pages = [
         'At Benelabs, we blend research-driven innovation with practical engineering to deliver solutions that empower businesses. Founded by Benediktus Satriya, a software engineer passionate about backend systems, cloud automation, and AI, the studio focuses on creating tools that simplify complexity.'
       ),
       block(
-        'With experience modernizing enterprise systems for clients like CIMB Niaga and Telkomsel, Benediktus brings a hands-on approach to every project. We are based in Jakarta, Indonesia, and committed to open-source contributions, technical education, and community-driven learning.'
+        'With experience modernizing enterprise systems for regulated industries, Benediktus brings a hands-on approach to every project. We are based in Jakarta, Indonesia, and committed to open-source contributions, technical education, and community-driven learning.'
       ),
       block('What we do', 'h2'),
       block(
@@ -247,18 +247,18 @@ const projects = [
     },
   },
   {
-    _id: 'project.cimb-genesys',
+    _id: 'project.omnichannel-crm',
     _type: 'project',
-    title: 'CIMB Niaga Genesys CRM Integration',
-    slug: { _type: 'slug', current: 'cimb-niaga-genesys-crm-integration' },
+    title: 'Omnichannel CRM Integration',
+    slug: { _type: 'slug', current: 'omnichannel-crm-integration' },
     summary:
-      'Engineered a Java Spring middleware to integrate Genesys omnichannel services, improving response times for high-volume banking interactions.',
+      'Engineered a Java Spring middleware to integrate omnichannel services, improving response times for high-volume customer interactions.',
     publishedAt: '2024-10-01',
     techStack: ['Java Spring Boot', 'REST APIs', 'PostgreSQL', 'Nginx'],
     content: [
       block('Overview', 'h2'),
       block(
-        'We delivered a middleware layer that unified voice and digital channels through Genesys, ensuring consistent routing and SLA adherence in a regulated banking environment.'
+        'We delivered a middleware layer that unified voice and digital channels, ensuring consistent routing and SLA adherence in a regulated environment.'
       ),
       block('Execution', 'h2'),
       block(
@@ -270,15 +270,15 @@ const projects = [
       ),
     ],
     seo: {
-      title: 'Genesys CRM Integration | Benelabs',
-      description: 'A banking-grade middleware integration for omnichannel customer experiences.',
+      title: 'Omnichannel CRM Integration | Benelabs',
+      description: 'A regulated-industry middleware integration for omnichannel customer experiences.',
     },
   },
   {
-    _id: 'project.telkomsel-byu',
+    _id: 'project.telecom-legacy-migration',
     _type: 'project',
-    title: 'Telkomsel By.U Legacy Migration',
-    slug: { _type: 'slug', current: 'telkomsel-byu-legacy-migration' },
+    title: 'Telecom Legacy Migration',
+    slug: { _type: 'slug', current: 'telecom-legacy-migration' },
     summary:
       'Migrated legacy monolith services into concurrent Go microservices to support large-scale customer migrations.',
     publishedAt: '2024-09-01',
@@ -298,7 +298,7 @@ const projects = [
       ),
     ],
     seo: {
-      title: 'Telkomsel By.U Migration | Benelabs',
+      title: 'Telecom Legacy Migration | Benelabs',
       description: 'A Go-based microservices migration for large-scale telecom operations.',
     },
   },
