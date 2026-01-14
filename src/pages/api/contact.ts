@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { createHash, randomUUID } from 'crypto';
 
+export const prerender = false;
+
 const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
 const RESEND_FROM_EMAIL = import.meta.env.RESEND_FROM_EMAIL as string | undefined;
 const RESEND_TO_EMAIL = import.meta.env.RESEND_TO_EMAIL as string | undefined;
@@ -184,4 +186,11 @@ export const POST: APIRoute = async ({ request }) => {
   return prefersJson(request)
     ? jsonResponse(200, payload)
     : htmlResponse(200, 'Message sent', 'Thanks for reaching out. We will reply within two business days.');
+};
+
+export const GET: APIRoute = async ({ request }) => {
+  const payload = { ok: false, error: 'Method not allowed.' };
+  return prefersJson(request)
+    ? jsonResponse(405, payload)
+    : htmlResponse(405, 'Method not allowed', 'Please submit the contact form to reach us.');
 };
