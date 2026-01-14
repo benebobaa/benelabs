@@ -76,7 +76,7 @@ Consent + session replay:
 
 ## Contact Form (Resend)
 
-The `/contact` form posts to `/api/contact`, which sends email via Resend and emits server-side PostHog events when consent is granted. The repo uses the Node adapter with `output: 'static'`; swap adapters if you deploy to Netlify/Vercel/Cloudflare.
+The `/contact` form posts to `/api/contact`, which sends email via Resend and emits server-side PostHog events when consent is granted. The repo uses the Vercel serverless adapter with `output: 'static'`; swap adapters if you deploy elsewhere.
 
 Environment variables:
 
