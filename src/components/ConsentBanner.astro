@@ -11,15 +11,15 @@ const consentRequired = (import.meta.env.PUBLIC_POSTHOG_CONSENT_REQUIRED ?? 'tru
   >
     <div class="card-surface flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
       <div class="space-y-2 text-sm text-[var(--color-ink-muted)]">
-        <div class="text-sm font-semibold text-[var(--color-ink)]">Analytics preferences</div>
+        <div class="text-sm font-semibold text-[var(--color-ink)]">Help us improve</div>
         <p>
-          We use PostHog to understand engagement and improve conversions. Session replay is off by default and
-          only enabled on selected pages if you consent.
+          We use optional usage data to understand what's working and to fix issues faster. We don't use it for
+          advertising. You can change your choice anytime in Settings.
         </p>
       </div>
       <div class="flex flex-wrap gap-3">
-        <button class="button-ghost" type="button" data-consent="deny">Decline</button>
-        <button class="button-primary" type="button" data-consent="accept">Accept</button>
+        <button class="button-primary" type="button" data-consent="accept">Allow analytics</button>
+        <button class="button-ghost" type="button" data-consent="deny">No thanks</button>
       </div>
     </div>
   </div>
