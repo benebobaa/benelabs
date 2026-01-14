@@ -10,6 +10,7 @@
     "seed:sanity": "node scripts/seed-sanity.mjs"
   },
   "dependencies": {
+    "@astrojs/node": "^9.0.0",
     "@astrojs/sitemap": "^3.6.0",
     "@sanity/client": "^7.13.2",
     "@tailwindcss/typography": "^0.5.19",

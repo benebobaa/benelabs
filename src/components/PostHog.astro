@@ -8,6 +8,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
     const POSTHOG_HOST = import.meta.env.PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
     const CONSENT_REQUIRED = (import.meta.env.PUBLIC_POSTHOG_CONSENT_REQUIRED || 'true') === 'true';
     const SESSION_REPLAY_ENABLED = (import.meta.env.PUBLIC_POSTHOG_SESSION_REPLAY || 'false') === 'true';
+    const AUTOCAPTURE_ENABLED = (import.meta.env.PUBLIC_POSTHOG_AUTOCAPTURE || 'true') === 'true';
     const CONSENT_KEY = 'posthog_consent';
     let posthog;
 
@@ -37,6 +38,24 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
         return acc;
       }, {});
 
+    const getContentContext = (node) => {
+      const container = node?.closest?.('[data-analytics-content]');
+      if (!container) return {};
+      return {
+        type: container.getAttribute('data-analytics-content'),
+        slug: container.getAttribute('data-analytics-slug'),
+        title: container.getAttribute('data-analytics-title'),
+      };
+    };
+
+    const setDistinctId = (ph) => {
+      if (!ph?.get_distinct_id) return;
+      const distinctId = ph.get_distinct_id();
+      if (!distinctId) return;
+      window.__posthogDistinctId = distinctId;
+      document.dispatchEvent(new CustomEvent('posthog:ready', { detail: { distinctId } }));
+    };
+
     const loadPosthog = async () => {
       if (posthog) return posthog;
       const module = await import('posthog-js');
@@ -50,13 +69,19 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
       const ph = await loadPosthog();
       ph.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
-        autocapture: false,
+        autocapture: AUTOCAPTURE_ENABLED,
         capture_pageview: false,
         capture_pageleave: false,
         disable_session_recording: true,
       });
 
       ph.opt_in_capturing();
+      window.posthog = ph;
+      setDistinctId(ph);
+      ph.register_once({ landing_path: window.location.pathname });
+      if (document.referrer) {
+        ph.register_once({ landing_referrer: document.referrer });
+      }
 
       const utms = getUtmParams();
       if (Object.keys(utms).length) {
@@ -72,12 +97,12 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
         referrer: document.referrer,
       });
 
-      const listNode = document.querySelector('[data-analytics-list]');
-      if (listNode) {
+      const listNodes = document.querySelectorAll('[data-analytics-list]');
+      listNodes.forEach((listNode) => {
         ph.capture('content_list_view', {
           list: listNode.getAttribute('data-analytics-list'),
         });
-      }
+      });
 
       const contentNode = document.querySelector('[data-analytics-content]');
       if (contentNode) {
@@ -88,17 +113,31 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
         });
 
         const article = contentNode;
+        let engaged = false;
+        let completed = false;
         const handler = () => {
           const rect = article.getBoundingClientRect();
           const height = rect.height || 1;
           const progress = Math.min(Math.max((window.innerHeight - rect.top) / height, 0), 1);
-          if (progress >= 0.5) {
+          if (!engaged && progress >= 0.5) {
+            engaged = true;
             ph.capture('content_engaged', {
               type: contentNode.getAttribute('data-analytics-content'),
               slug: contentNode.getAttribute('data-analytics-slug'),
               title: contentNode.getAttribute('data-analytics-title'),
               scroll: '50',
             });
+          }
+          if (!completed && progress >= 0.9) {
+            completed = true;
+            ph.capture('content_completed', {
+              type: contentNode.getAttribute('data-analytics-content'),
+              slug: contentNode.getAttribute('data-analytics-slug'),
+              title: contentNode.getAttribute('data-analytics-title'),
+              scroll: '90',
+            });
+          }
+          if (engaged && completed) {
             window.removeEventListener('scroll', handler);
           }
         };
@@ -123,11 +162,15 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
           if (type === 'email') {
             ph.capture('contact_email_click', { href: analyticsNode.getAttribute('href') });
           }
-          if (type === 'contact-submit') {
-            ph.capture('contact_form_submit', { label: label ?? 'Send message' });
-          }
           if (type === 'project-link') {
             ph.capture('project_link_click', { label, href: analyticsNode.getAttribute('href') });
+          }
+          if (type === 'project-video') {
+            ph.capture('project_video_play', {
+              label,
+              href: analyticsNode.getAttribute('href'),
+              ...getContentContext(analyticsNode),
+            });
           }
         }
 
@@ -140,6 +183,33 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
         }
       });
 
+      const form = document.querySelector('[data-analytics-form="contact"]');
+      if (form instanceof HTMLFormElement) {
+        const formName = form.getAttribute('data-analytics-form') ?? 'contact';
+        let started = false;
+        form.addEventListener('focusin', () => {
+          if (started) return;
+          started = true;
+          ph.capture('contact_form_start', { form: formName });
+        });
+        form.addEventListener('submit', () => {
+          ph.capture('contact_form_submit', { form: formName });
+        });
+      }
+
+      const videoNodes = document.querySelectorAll('[data-analytics-video]');
+      videoNodes.forEach((node) => {
+        if (!(node instanceof HTMLVideoElement)) return;
+        const type = node.getAttribute('data-analytics-video');
+        node.addEventListener(
+          'play',
+          () => {
+            ph.capture('project_video_play', { type, ...getContentContext(node) });
+          },
+          { once: true }
+        );
+      });
+
       const allowReplay =
         SESSION_REPLAY_ENABLED && document.body.getAttribute('data-session-replay') === 'true';
       if (allowReplay) {
@@ -147,6 +217,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
       } else {
         ph.stopSessionRecording?.();
       }
+      ph.register({ session_replay_enabled: allowReplay });
     };
 
     const handleConsent = (state) => {

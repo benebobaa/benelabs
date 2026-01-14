@@ -138,6 +138,7 @@ const videoEmbed = demoVideo?.url
               controls
               playsinline
               preload="metadata"
+              data-analytics-video="file"
             />
           ) : videoEmbed ? (
             <div class="relative w-full overflow-hidden rounded-[var(--radius-md)] bg-[var(--color-warm)] pb-[56.25%]">
@@ -156,6 +157,8 @@ const videoEmbed = demoVideo?.url
               href={demoVideo.url}
               target="_blank"
               rel="noopener noreferrer"
+              data-analytics="project-video"
+              data-label="project_demo_video"
             >
               Watch demo video ->
             </a>

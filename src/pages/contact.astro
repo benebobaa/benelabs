@@ -46,7 +46,15 @@ const body =
           <p>Based in Jakarta, Indonesia, working globally on AI, cloud, and backend delivery.</p>
         </div>
       </div>
-      <form class="card-surface card-pad grid gap-4">
+      <form
+        class="card-surface card-pad grid gap-4"
+        action="/api/contact"
+        method="post"
+        data-analytics-form="contact"
+        data-ph-no-capture
+      >
+        <input type="hidden" name="distinctId" data-analytics-distinct-id />
+        <input type="hidden" name="consent" data-analytics-consent />
         <div class="grid gap-2">
           <label class="text-sm font-semibold text-[var(--color-ink)]" for="name">Name</label>
           <input
@@ -55,6 +63,7 @@ const body =
             name="name"
             type="text"
             placeholder="Your name"
+            data-ph-mask
           />
         </div>
         <div class="grid gap-2">
@@ -65,6 +74,8 @@ const body =
             name="email"
             type="email"
             placeholder="you@company.com"
+            required
+            data-ph-mask
           />
         </div>
         <div class="grid gap-2">
@@ -74,15 +85,45 @@ const body =
             id="details"
             name="details"
             placeholder="Tell us about your timeline, goals, and scope."
+            required
+            data-ph-mask
           ></textarea>
         </div>
         <button class="button-primary w-fit" type="submit" data-analytics="contact-submit">
           Book a free consultation
         </button>
         <p class="text-xs text-[var(--color-ink-subtle)]">
-          Connect this form to your preferred handler (Formspree, Basin, or custom).
+          This form sends via Resend once the required environment variables are configured.
         </p>
       </form>
     </div>
   </section>
+  <script>
+    const form = document.querySelector('[data-analytics-form="contact"]');
+    const distinctInput = form?.querySelector('[data-analytics-distinct-id]');
+    const consentInput = form?.querySelector('[data-analytics-consent]');
+    const CONSENT_KEY = 'posthog_consent';
+
+    const updateDistinct = (value) => {
+      if (!distinctInput || !value) return;
+      distinctInput.value = value;
+    };
+
+    const updateConsent = () => {
+      if (!consentInput || typeof localStorage === 'undefined') return;
+      consentInput.value = localStorage.getItem(CONSENT_KEY) ?? '';
+    };
+
+    updateDistinct(window.__posthogDistinctId);
+    updateConsent();
+
+    form?.addEventListener('submit', () => {
+      updateDistinct(window.__posthogDistinctId);
+      updateConsent();
+    });
+
+    document.addEventListener('posthog:ready', (event) => {
+      updateDistinct(event.detail?.distinctId);
+    });
+  </script>
 </BaseLayout>
