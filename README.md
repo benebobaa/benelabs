@@ -1,4 +1,4 @@
-# Benelabs Tech Site
+# Benelabs Tech Site Page
 
 Astro + Tailwind SSG for Benelabs.tech. Static pages are generated for the homepage, blog, projects, and core company pages.
 
