@@ -114,7 +114,6 @@ export const POST: APIRoute = async ({ request }) => {
   const name = normalize(data.name);
   const email = normalize(data.email).toLowerCase();
   const details = normalize(data.details);
-  const consent = normalize(data.consent || data.posthog_consent);
   const distinctId = normalize(data.distinctId || data.distinct_id || data.posthog_distinct_id);
 
   if (!email || !email.includes('@') || !details) {
@@ -124,7 +123,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   const emailHash = hashEmail(email);
   const safeDistinctId = distinctId || emailHash || randomUUID();
-  const allowAnalytics = (!CONSENT_REQUIRED || consent === 'granted') && Boolean(POSTHOG_KEY);
+  const allowAnalytics = Boolean(POSTHOG_KEY);
 
   if (allowAnalytics) {
     await capturePosthog('contact_form_received', safeDistinctId, {

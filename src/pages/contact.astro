@@ -54,7 +54,6 @@ const body =
         data-ph-no-capture
       >
         <input type="hidden" name="distinctId" data-analytics-distinct-id />
-        <input type="hidden" name="consent" data-analytics-consent />
         <div class="grid gap-2">
           <label class="text-sm font-semibold text-[var(--color-ink)]" for="name">Name</label>
           <input
@@ -101,25 +100,16 @@ const body =
   <script>
     const form = document.querySelector('[data-analytics-form="contact"]');
     const distinctInput = form?.querySelector('[data-analytics-distinct-id]');
-    const consentInput = form?.querySelector('[data-analytics-consent]');
-    const CONSENT_KEY = 'posthog_consent';
 
     const updateDistinct = (value) => {
       if (!distinctInput || !value) return;
       distinctInput.value = value;
     };
 
-    const updateConsent = () => {
-      if (!consentInput || typeof localStorage === 'undefined') return;
-      consentInput.value = localStorage.getItem(CONSENT_KEY) ?? '';
-    };
-
     updateDistinct(window.__posthogDistinctId);
-    updateConsent();
 
     form?.addEventListener('submit', () => {
       updateDistinct(window.__posthogDistinctId);
-      updateConsent();
     });
 
     document.addEventListener('posthog:ready', (event) => {
