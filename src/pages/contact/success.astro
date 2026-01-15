@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Message Sent" description="Your message has been received.">
+  <section class="site-container section-block flex flex-col items-center justify-center min-h-[60vh]">
+    <div class="card-surface card-pad text-center max-w-md w-full space-y-6">
+      <h1 class="text-3xl font-serif">Message Received</h1>
+      <p class="text-[var(--color-ink-muted)]">Thanks for reaching out. We will reply within two business days.</p>
+      <a href="/" class="button-primary justify-center w-full">Back to Home</a>
+    </div>
+  </section>
+</BaseLayout>

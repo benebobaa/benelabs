@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getPageBySlug } from '../lib/sanity';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPageBySlug } from '../../lib/sanity';
 
 const page = await getPageBySlug('contact');
 const title = page?.seo?.title ?? 'Contact | Benelabs';

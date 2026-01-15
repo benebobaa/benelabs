@@ -42,7 +42,6 @@ Environment variables:
 ```bash
 PUBLIC_POSTHOG_KEY=""
 PUBLIC_POSTHOG_HOST="https://app.posthog.com"
-PUBLIC_POSTHOG_CONSENT_REQUIRED="true"
 PUBLIC_POSTHOG_SESSION_REPLAY="false"
 PUBLIC_POSTHOG_AUTOCAPTURE="true"
 ```
@@ -70,13 +69,12 @@ Attribution:
 - First-touch UTMs are stored as person props with `first_touch_*`.
 - Last-touch UTMs are stored as person props with `utm_*`.
 
-Consent + session replay:
-- Consent is required when `PUBLIC_POSTHOG_CONSENT_REQUIRED="true"`.
+Session replay:
 - Session replay only starts on pages with `enableSessionReplay={true}` (currently `/contact`) and when `PUBLIC_POSTHOG_SESSION_REPLAY="true"`.
 
 ## Contact Form (Resend)
 
-The `/contact` form posts to `/api/contact`, which sends email via Resend and emits server-side PostHog events when consent is granted. The repo uses the Vercel serverless adapter with `output: 'static'`; swap adapters if you deploy elsewhere.
+The `/contact` form posts to `/api/contact`, which sends email via Resend and emits server-side PostHog events when the key is configured. The repo uses the Vercel serverless adapter with `output: 'static'`; swap adapters if you deploy elsewhere.
 
 Environment variables:
 

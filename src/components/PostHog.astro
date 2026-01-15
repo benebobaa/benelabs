@@ -47,7 +47,6 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
 
     const POSTHOG_KEY = import.meta.env.PUBLIC_POSTHOG_KEY;
     const POSTHOG_HOST = import.meta.env.PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
-    const CONSENT_REQUIRED = (import.meta.env.PUBLIC_POSTHOG_CONSENT_REQUIRED || 'true') === 'true';
     const SESSION_REPLAY_ENABLED = (import.meta.env.PUBLIC_POSTHOG_SESSION_REPLAY || 'false') === 'true';
     const AUTOCAPTURE_ENABLED = (import.meta.env.PUBLIC_POSTHOG_AUTOCAPTURE || 'true') === 'true';
     let posthog;
@@ -78,18 +77,11 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
           capture_pageleave: false,
           disable_session_recording: true,
           persistence: 'localStorage',
-          // Start with opt-out if consent is required
-          opt_out_capturing_by_default: CONSENT_REQUIRED,
         });
 
         window.posthog = ph;
         setDistinctId(ph);
-        log('PostHog initialized', { host: POSTHOG_HOST, consent_required: CONSENT_REQUIRED });
-
-        // If consent is NOT required, opt in immediately
-        if (!CONSENT_REQUIRED) {
-          ph.opt_in_capturing();
-        }
+        log('PostHog initialized', { host: POSTHOG_HOST });
 
         ph.register_once({ landing_path: window.location.pathname });
         if (document.referrer) {
