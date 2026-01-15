@@ -147,72 +147,119 @@ export const POST: APIRoute = async ({ request }) => {
     `Referrer: ${referer}`,
   ].join('\n');
 
-  const resendResponse = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: RESEND_FROM_EMAIL,
-      to: recipients,
-      subject,
-      text, // Fallback for clients that don't support HTML
-      reply_to: email,
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>New Consultation Request</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #141414; background-color: #f7f6f2; padding: 20px; }
-              .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-              .header { background: #1e5fa2; color: #ffffff; padding: 20px; text-align: center; }
-              .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
-              .content { padding: 30px 20px; }
-              .field { margin-bottom: 20px; }
-              .label { font-size: 12px; text-transform: uppercase; color: #6b6b6b; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.05em; }
-              .value { font-size: 16px; color: #141414; white-space: pre-wrap; }
-              .footer { background: #f7f6f2; padding: 20px; text-align: center; font-size: 12px; color: #6b6b6b; border-top: 1px solid #e6e2da; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>Benelabs Inquiry</h1>
-              </div>
-              <div class="content">
-                <div class="field">
-                  <div class="label">Name</div>
-                  <div class="value">${name || 'Not provided'}</div>
-                </div>
-                <div class="field">
-                  <div class="label">Email</div>
-                  <div class="value"><a href="mailto:${email}">${email}</a></div>
-                </div>
-                <div class="field">
-                  <div class="label">Project Details</div>
-                  <div class="value">${details.replace(/\n/g, '<br>')}</div>
-                </div>
-                <div class="field">
-                  <div class="label">Referrer</div>
-                  <div class="value">${referer}</div>
-                </div>
-              </div>
-              <div class="footer">
-                &copy; ${new Date().getFullYear()} Benelabs. All rights reserved.
-              </div>
+  const adminHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>New Consultation Request</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #141414; background-color: #f7f6f2; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+          .header { background: #1e5fa2; color: #ffffff; padding: 20px; text-align: center; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+          .content { padding: 30px 20px; }
+          .field { margin-bottom: 20px; }
+          .label { font-size: 12px; text-transform: uppercase; color: #6b6b6b; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.05em; }
+          .value { font-size: 16px; color: #141414; white-space: pre-wrap; }
+          .footer { background: #f7f6f2; padding: 20px; text-align: center; font-size: 12px; color: #6b6b6b; border-top: 1px solid #e6e2da; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Benelabs Inquiry</h1>
+          </div>
+          <div class="content">
+            <div class="field">
+              <div class="label">Name</div>
+              <div class="value">${name || 'Not provided'}</div>
             </div>
-          </body>
-        </html>
-      `
-    }),
-  });
+            <div class="field">
+              <div class="label">Email</div>
+              <div class="value"><a href="mailto:${email}">${email}</a></div>
+            </div>
+            <div class="field">
+              <div class="label">Project Details</div>
+              <div class="value">${details.replace(/\n/g, '<br>')}</div>
+            </div>
+            <div class="field">
+              <div class="label">Referrer</div>
+              <div class="value">${referer}</div>
+            </div>
+          </div>
+          <div class="footer">
+            &copy; ${new Date().getFullYear()} Benelabs. All rights reserved.
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
 
-  if (!resendResponse.ok) {
-    const errorData = await resendResponse.json();
-    console.error('Resend API Error:', JSON.stringify(errorData, null, 2));
+  const userHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>We received your message</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #141414; background-color: #f7f6f2; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+          .header { background: #ffffff; color: #141414; padding: 30px 20px 10px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 700; color: #1e5fa2; }
+          .content { padding: 30px 20px; }
+          .message { font-size: 16px; color: #4c4c4c; margin-bottom: 24px; }
+          .cta { display: inline-block; padding: 12px 24px; background-color: #1e5fa2; color: #ffffff; text-decoration: none; border-radius: 99px; font-weight: 600; font-size: 15px; }
+          .footer { background: #f7f6f2; padding: 20px; text-align: center; font-size: 12px; color: #6b6b6b; border-top: 1px solid #e6e2da; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Benelabs</h1>
+          </div>
+          <div class="content">
+            <p class="message">Hi ${name || 'there'},</p>
+            <p class="message">Thanks for reaching out! We've received your message about your project.</p>
+            <p class="message">Our team will review the details and get back to you within two business days. We're excited to learn more about what you're building.</p>
+            <p class="message" style="margin-top: 32px; text-align: center;">
+              <a href="https://benelabs.tech/projects" class="cta">Check out our latest work</a>
+            </p>
+          </div>
+          <div class="footer">
+            &copy; ${new Date().getFullYear()} Benelabs. All rights reserved.
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const sendEmail = (to: string | string[], subject: string, html: string, replyTo?: string) =>
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: RESEND_FROM_EMAIL,
+        to,
+        subject,
+        html,
+        reply_to: replyTo,
+      }),
+    });
+
+  const [adminResult, userResult] = await Promise.allSettled([
+    sendEmail(recipients, subject, adminHtml, email),
+    sendEmail(email, 'Received: Your inquiry to Benelabs', userHtml),
+  ]);
+
+  const adminResponse = adminResult.status === 'fulfilled' ? adminResult.value : null;
+
+  if (!adminResponse || !adminResponse.ok) {
+    const errorData = await adminResponse?.json().catch(() => ({ message: 'Unknown error' }));
+    console.error('Resend API Error (Admin):', JSON.stringify(errorData, null, 2));
 
     if (allowAnalytics) {
       await capturePosthog('contact_email_failed', safeDistinctId, {
