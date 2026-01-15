@@ -63,8 +63,20 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
       return posthog;
     };
 
+    const isDebug = () => {
+      if (typeof window === 'undefined') return false;
+      return new URLSearchParams(window.location.search).has('debug_posthog');
+    };
+
+    const log = (...args) => {
+      if (isDebug()) {
+        console.log('[PostHog Debug]', ...args);
+      }
+    };
+
     const initPosthog = async () => {
       if (!POSTHOG_KEY || window.__posthogInitialized) return;
+      log('Initializing PostHog...');
       window.__posthogInitialized = true;
       const ph = await loadPosthog();
       ph.init(POSTHOG_KEY, {
@@ -78,6 +90,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
       ph.opt_in_capturing();
       window.posthog = ph;
       setDistinctId(ph);
+      log('PostHog initialized with key:', POSTHOG_KEY.slice(0, 8) + '...');
       ph.register_once({ landing_path: window.location.pathname });
       if (document.referrer) {
         ph.register_once({ landing_referrer: document.referrer });
@@ -221,6 +234,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
     };
 
     const handleConsent = (state) => {
+      log('Consent event received:', state);
       if (!CONSENT_REQUIRED) {
         initPosthog();
         return;
@@ -241,6 +255,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
       handleConsent(event.detail);
     });
 
+    log('Checking initial consent...', { CONSENT_REQUIRED, currentStatus: getConsent() });
     if (!CONSENT_REQUIRED || getConsent() === 'granted') {
       initPosthog();
     }
