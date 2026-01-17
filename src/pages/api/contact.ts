@@ -64,8 +64,8 @@ const normalizeHost = (value: string | undefined) => {
 
 const mixpanel = MIXPANEL_TOKEN
   ? Mixpanel.init(MIXPANEL_TOKEN, {
-      host: normalizeHost(MIXPANEL_API_HOST) ?? 'api.mixpanel.com',
-    })
+    host: normalizeHost(MIXPANEL_API_HOST) ?? 'api.mixpanel.com',
+  })
   : null;
 
 const captureMixpanel = async (
@@ -241,7 +241,7 @@ export const POST: APIRoute = async ({ request }) => {
             <p class="message">Thanks for reaching out! We've received your message about your project.</p>
             <p class="message">Our team will review the details and get back to you within two business days. We're excited to learn more about what you're building.</p>
             <p class="message" style="margin-top: 32px; text-align: center;">
-              <a href="https://benelabs.tech/projects" class="cta">Check out our latest work</a>
+              <a href="https://benelabs.tech/projects" class="cta" style="display: inline-block; padding: 12px 24px; background-color: #1e5fa2; color: #ffffff; text-decoration: none; border-radius: 99px; font-weight: 600; font-size: 15px;">Check out our latest work</a>
             </p>
           </div>
           <div class="footer">
