@@ -1,0 +1,258 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
+const autocapture = (import.meta.env.PUBLIC_MIXPANEL_AUTOCAPTURE || 'false') === 'true';
+const trackPageview = (import.meta.env.PUBLIC_MIXPANEL_TRACK_PAGEVIEW || 'false') === 'true';
+const sessionReplay = (import.meta.env.PUBLIC_MIXPANEL_SESSION_REPLAY || 'false') === 'true';
+const sessionReplayPercent = Number.parseInt(
+  import.meta.env.PUBLIC_MIXPANEL_SESSION_REPLAY_PERCENT || '0',
+  10
+);
+const apiHost = import.meta.env.PUBLIC_MIXPANEL_API_HOST || 'https://api.mixpanel.com';
+---
+
+<BaseLayout
+  title="Analytics Health Check | Benelabs"
+  description="Verify Mixpanel analytics configuration and health"
+>
+  <section class="site-container section-block">
+    <div class="space-y-4">
+      <p class="eyebrow">Analytics Health Check</p>
+      <h1 class="text-[1.8rem] md:text-4xl">
+        Mixpanel Configuration Status
+      </h1>
+      <p class="text-base text-pretty text-[var(--color-ink-muted)]">
+        This page checks Mixpanel analytics configuration in real-time. Use this to verify that
+        analytics is properly initialized and events are being tracked.
+      </p>
+    </div>
+
+    <div class="full-bleed-mobile grid gap-6 md:grid-cols-2">
+      <div class="card-surface card-pad space-y-6">
+        <div>
+          <h2 class="text-xl">Configuration</h2>
+          <p class="text-sm text-[var(--color-ink-subtle)]">
+            Environment variables and settings
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+            <span class="text-sm font-semibold text-[var(--color-ink)]">Mixpanel Token</span>
+            {mixpanelToken ? (
+              <span class="text-sm text-green-600">✅ Configured</span>
+            ) : (
+              <span class="text-sm text-red-600">❌ Missing</span>
+            )}
+          </div>
+
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+            <span class="text-sm font-semibold text-[var(--color-ink)]">API Host</span>
+            <span class="text-sm text-[var(--color-ink-muted)]">{apiHost}</span>
+          </div>
+
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+            <span class="text-sm font-semibold text-[var(--color-ink)]">Autocapture</span>
+            {autocapture ? (
+              <span class="text-sm text-amber-600">⚪ Enabled</span>
+            ) : (
+              <span class="text-sm text-green-600">⚫ Disabled</span>
+            )}
+          </div>
+
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+            <span class="text-sm font-semibold text-[var(--color-ink)]">Track Pageview</span>
+            {trackPageview ? (
+              <span class="text-sm text-green-600">⚫ Enabled</span>
+            ) : (
+              <span class="text-sm text-green-600">⚫ Disabled (manual)</span>
+            )}
+          </div>
+
+          <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+            <span class="text-sm font-semibold text-[var(--color-ink)]">Session Replay</span>
+            {sessionReplay ? (
+              <span class="text-sm text-amber-600">⚪ Enabled ({sessionReplayPercent}% sampling)</span>
+            ) : (
+              <span class="text-sm text-green-600">⚫ Disabled</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-surface card-pad space-y-6">
+        <div>
+          <h2 class="text-xl">Client Status</h2>
+          <p class="text-sm text-[var(--color-ink-subtle)]">
+            Runtime analytics state (requires JavaScript)
+          </p>
+        </div>
+
+        <div id="analytics-status" class="space-y-4">
+          <p class="text-sm text-[var(--color-ink-subtle)]">
+            Loading analytics status...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-surface card-pad space-y-6">
+      <div>
+        <h2 class="text-xl">Test Event</h2>
+        <p class="text-sm text-[var(--color-ink-subtle)]">
+          Click the button below to send a test event to Mixpanel. Check the browser
+          console for debug output.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button
+          id="test-page-view"
+          class="button-primary"
+          type="button"
+          data-analytics="cta"
+          data-label="health_check_test_page_view"
+        >
+          Test Page View Event
+        </button>
+        <button
+          id="test-custom-event"
+          class="button-ghost"
+          type="button"
+          data-analytics="cta"
+          data-label="health_check_test_custom"
+        >
+          Test Custom Event
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs text-[var(--color-ink-subtle)]">
+        <p>
+          <strong>Debug Mode:</strong> Add <code class="bg-[var(--color-warm)] px-1">?debug_mixpanel</code> to
+          URL to see console logs.
+        </p>
+        <p>
+          <strong>Example:</strong>{' '}
+          <a href="?debug_mixpanel" class="text-[var(--color-accent)]">
+            /analytics-health?debug_mixpanel
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const updateStatus = () => {
+      const statusContainer = document.getElementById('analytics-status');
+      if (!statusContainer) return;
+
+      const checks = [];
+
+      // Check if Mixpanel is loaded
+      if (typeof window !== 'undefined' && 'mixpanel' in window) {
+        checks.push({
+          label: 'Mixpanel Initialized',
+          status: '✅ Yes',
+          value: 'Ready to track events',
+        });
+
+        // Check distinct ID
+        if (window.__mixpanelDistinctId) {
+          checks.push({
+            label: 'Distinct ID',
+            status: '✅ Set',
+            value: window.__mixpanelDistinctId.substring(0, 8) + '...',
+          });
+        } else {
+          checks.push({
+            label: 'Distinct ID',
+            status: '⚠️ Not set',
+            value: 'Will use random UUID on form submit',
+          });
+        }
+
+        // Check session replay status
+        const replayEnabled =
+          document.body.getAttribute('data-session-replay') === 'true';
+        checks.push({
+          label: 'Session Replay',
+          status: replayEnabled ? '⚪ Active' : '⚫ Inactive',
+          value: replayEnabled ? 'Recording enabled for this page' : 'Not recording',
+        });
+      } else {
+        checks.push({
+          label: 'Mixpanel Initialized',
+          status: '❌ No',
+          value: 'SDK not loaded (check ad blocker or token)',
+        });
+        checks.push({
+          label: 'Distinct ID',
+          status: '⚠️ Unknown',
+          value: 'SDK not available',
+        });
+        checks.push({
+          label: 'Session Replay',
+          status: '⚠️ Unknown',
+          value: 'SDK not available',
+        });
+      }
+
+      // Build status HTML
+      const statusHtml = checks
+        .map(
+          (check) => `
+            <div class="flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+              <span class="text-sm font-semibold text-[var(--color-ink)]">${check.label}</span>
+              <div class="text-right">
+                <div class="text-sm text-[var(--color-ink-muted)]">${check.status}</div>
+                <div class="text-xs text-[var(--color-ink-subtle)]">${check.value}</div>
+              </div>
+            </div>
+          `
+        )
+        .join('');
+
+      statusContainer.innerHTML = statusHtml;
+    };
+
+    // Test event handlers
+    document.getElementById('test-page-view')?.addEventListener('click', () => {
+      if (window.mixpanel) {
+        window.mixpanel.track('page_view', {
+          path: '/analytics-health/test',
+          title: 'Analytics Health Check Test',
+          referrer: document.referrer,
+        });
+        console.log('[Mixpanel Test] Page view event sent');
+      } else {
+        console.warn('[Mixpanel Test] Mixpanel SDK not available');
+      }
+    });
+
+    document.getElementById('test-custom-event')?.addEventListener('click', () => {
+      if (window.mixpanel) {
+        window.mixpanel.track('cta_click', {
+          label: 'health_check_test',
+          href: '#',
+        });
+        console.log('[Mixpanel Test] Custom event sent');
+      } else {
+        console.warn('[Mixpanel Test] Mixpanel SDK not available');
+      }
+    });
+
+    // Listen for Mixpanel ready
+    document.addEventListener('mixpanel:ready', () => {
+      console.log('[Mixpanel] Ready event received');
+      updateStatus();
+    });
+
+    // Update status on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateStatus);
+    } else {
+      updateStatus();
+    }
+  </script>
+</BaseLayout>

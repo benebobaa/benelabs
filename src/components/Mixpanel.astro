@@ -4,33 +4,98 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
 
 {mixpanelToken ? (
   <script>
-    const getUtmParams = () => {
+    // Type definitions for Mixpanel events
+    type MixpanelEventName =
+      | 'page_view'
+      | 'content_list_view'
+      | 'content_view'
+      | 'content_engaged'
+      | 'content_completed'
+      | 'cta_click'
+      | 'nav_click'
+      | 'contact_email_click'
+      | 'project_link_click'
+      | 'project_video_play'
+      | 'outbound_link_click'
+      | 'contact_form_start'
+      | 'contact_form_submit'
+      | 'error';
+
+    type UtmParams = {
+      utm_source?: string;
+      utm_medium?: string;
+      utm_campaign?: string;
+      utm_term?: string;
+      utm_content?: string;
+      gclid?: string;
+      fbclid?: string;
+    };
+
+    type MixpanelEventBase = {
+      distinct_id?: string;
+      time?: number;
+    };
+
+    type MixpanelEvents = {
+      page_view: MixpanelEventBase & { path: string; title: string; referrer: string };
+      content_list_view: MixpanelEventBase & { list: string };
+      content_view: MixpanelEventBase & { type: string; slug: string; title: string };
+      content_engaged: MixpanelEventBase & { type: string; slug: string; title: string; scroll: string };
+      content_completed: MixpanelEventBase & { type: string; slug: string; title: string; scroll: string };
+      cta_click: MixpanelEventBase & { label: string; href?: string };
+      nav_click: MixpanelEventBase & { label: string; href: string };
+      contact_email_click: MixpanelEventBase & { href: string };
+      project_link_click: MixpanelEventBase & { label: string; href: string };
+      project_video_play: MixpanelEventBase & { type: string; slug?: string; title?: string };
+      outbound_link_click: MixpanelEventBase & { href: string; label: string };
+      contact_form_start: MixpanelEventBase & { form: string };
+      contact_form_submit: MixpanelEventBase & { form: string };
+      error: MixpanelEventBase & { message: string; filename?: string; lineno?: number; colno?: number; url?: string; user_agent?: string };
+    };
+
+    // Type-safe event tracking wrapper
+    const trackEvent = <K extends MixpanelEventName>(
+      eventName: K,
+      properties: MixpanelEvents[K]
+    ): void => {
+      if (!window.mixpanel) return;
+      window.mixpanel.track(eventName, properties);
+    };
+
+    const getUtmParams = (): UtmParams => {
       const params = new URLSearchParams(window.location.search);
       const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
       return keys.reduce((acc, key) => {
         const value = params.get(key);
         if (value) acc[key] = value;
         return acc;
-      }, {});
+      }, {} as UtmParams);
     };
 
-    const withPrefix = (prefix, obj) =>
+    const withPrefix = <T extends Record<string, unknown>>(
+      prefix: string,
+      obj: T
+    ): { [K in keyof T as `${string}${K & string}`]: T[K] } =>
       Object.keys(obj).reduce((acc, key) => {
-        acc[`${prefix}${key}`] = obj[key];
+        (acc as Record<string, unknown>)[`${prefix}${key}`] = obj[key as unknown];
         return acc;
-      }, {});
+      }, {} as Record<string, unknown>) as { [K in keyof T as `${string}${K & string}`]: T[K] };
 
-    const getContentContext = (node) => {
-      const container = node?.closest?.('[data-analytics-content]');
+    const getContentContext = (node: Element | null): Partial<{
+      type: string;
+      slug: string;
+      title: string;
+    }> => {
+      const container = node?.closest?.('[data-analytics-content]') as Element | null;
       if (!container) return {};
       return {
-        type: container.getAttribute('data-analytics-content'),
-        slug: container.getAttribute('data-analytics-slug'),
-        title: container.getAttribute('data-analytics-title'),
+        type: container.getAttribute('data-analytics-content') || undefined,
+        slug: container.getAttribute('data-analytics-slug') || undefined,
+        title: container.getAttribute('data-analytics-title') || undefined,
       };
     };
 
-    const setDistinctId = (mp) => {
+    const setDistinctId = (mp: any): void => {
       if (!mp?.get_distinct_id) return;
       const distinctId = mp.get_distinct_id();
       if (!distinctId) return;
@@ -38,7 +103,7 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
       document.dispatchEvent(new CustomEvent('mixpanel:ready', { detail: { distinctId } }));
     };
 
-    const loadMixpanel = async () => {
+    const loadMixpanel = async (): Promise<any> => {
       if (mixpanel) return mixpanel;
       const module = await import('mixpanel-browser');
       mixpanel = module.default;
@@ -54,26 +119,26 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
       import.meta.env.PUBLIC_MIXPANEL_SESSION_REPLAY_PERCENT || '0',
       10
     );
-    let mixpanel;
+    let mixpanel: any;
 
-    const isDebug = () => {
+    const isDebug = (): boolean => {
       if (typeof window === 'undefined') return false;
       return new URLSearchParams(window.location.search).has('debug_mixpanel');
     };
 
-    const log = (...args) => {
+    const log = (...args: unknown[]): void => {
       if (isDebug()) {
         console.log('[Mixpanel Debug]', ...args);
       }
     };
 
-    const getReplayPercent = (allowReplay) => {
+    const getReplayPercent = (allowReplay: boolean): number => {
       if (!allowReplay) return 0;
       const percent = Number.isFinite(SESSION_REPLAY_PERCENT) ? SESSION_REPLAY_PERCENT : 0;
       return Math.min(Math.max(percent, 0), 100);
     };
 
-    const initMixpanel = async () => {
+    const initMixpanel = async (): Promise<void> => {
       if (!MIXPANEL_TOKEN || window.__mixpanelInitialized) return;
       window.__mixpanelInitialized = true;
 
@@ -112,7 +177,7 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
           mp.people?.set_once(withPrefix('first_touch_', utms));
         }
 
-        mp.track('page_view', {
+        trackEvent('page_view', {
           path: window.location.pathname,
           title: document.title,
           referrer: document.referrer,
@@ -120,41 +185,42 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
 
         const listNodes = document.querySelectorAll('[data-analytics-list]');
         listNodes.forEach((listNode) => {
-          mp.track('content_list_view', {
-            list: listNode.getAttribute('data-analytics-list'),
+          trackEvent('content_list_view', {
+            list: listNode.getAttribute('data-analytics-list') || '',
           });
         });
 
         const contentNode = document.querySelector('[data-analytics-content]');
         if (contentNode) {
-          mp.track('content_view', {
-            type: contentNode.getAttribute('data-analytics-content'),
-            slug: contentNode.getAttribute('data-analytics-slug'),
-            title: contentNode.getAttribute('data-analytics-title'),
+          const context = getContentContext(contentNode);
+          trackEvent('content_view', {
+            type: context.type || '',
+            slug: context.slug || '',
+            title: context.title || '',
           });
 
           const article = contentNode;
           let engaged = false;
           let completed = false;
-          const handler = () => {
+          const handler = (): void => {
             const rect = article.getBoundingClientRect();
             const height = rect.height || 1;
             const progress = Math.min(Math.max((window.innerHeight - rect.top) / height, 0), 1);
             if (!engaged && progress >= 0.5) {
               engaged = true;
-              mp.track('content_engaged', {
-                type: contentNode.getAttribute('data-analytics-content'),
-                slug: contentNode.getAttribute('data-analytics-slug'),
-                title: contentNode.getAttribute('data-analytics-title'),
+              trackEvent('content_engaged', {
+                type: context.type || '',
+                slug: context.slug || '',
+                title: context.title || '',
                 scroll: '50',
               });
             }
             if (!completed && progress >= 0.9) {
               completed = true;
-              mp.track('content_completed', {
-                type: contentNode.getAttribute('data-analytics-content'),
-                slug: contentNode.getAttribute('data-analytics-slug'),
-                title: contentNode.getAttribute('data-analytics-title'),
+              trackEvent('content_completed', {
+                type: context.type || '',
+                slug: context.slug || '',
+                title: context.title || '',
                 scroll: '90',
               });
             }
@@ -166,55 +232,57 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
           handler();
         }
 
-        document.addEventListener('click', (event) => {
+        document.addEventListener('click', (event: Event) => {
           const target = event.target;
           if (!(target instanceof Element)) return;
 
-          const analyticsNode = target.closest('[data-analytics]');
+          const analyticsNode = target.closest('[data-analytics]') as Element | null;
           if (analyticsNode) {
             const type = analyticsNode.getAttribute('data-analytics');
             const label = analyticsNode.getAttribute('data-label') ?? analyticsNode.textContent?.trim();
+            const href = analyticsNode.getAttribute('href') || '';
+
             if (type === 'cta') {
-              mp.track('cta_click', { label, href: analyticsNode.getAttribute('href') });
+              trackEvent('cta_click', { label: label || '', href });
             }
             if (type === 'nav') {
-              mp.track('nav_click', { label, href: analyticsNode.getAttribute('href') });
+              trackEvent('nav_click', { label: label || '', href });
             }
             if (type === 'email') {
-              mp.track('contact_email_click', { href: analyticsNode.getAttribute('href') });
+              trackEvent('contact_email_click', { href });
             }
             if (type === 'project-link') {
-              mp.track('project_link_click', { label, href: analyticsNode.getAttribute('href') });
+              trackEvent('project_link_click', { label: label || '', href });
             }
             if (type === 'project-video') {
-              mp.track('project_video_play', {
-                label,
-                href: analyticsNode.getAttribute('href'),
+              trackEvent('project_video_play', {
+                label: label || '',
+                href,
                 ...getContentContext(analyticsNode),
               });
             }
           }
 
-          const anchor = target.closest('a');
+          const anchor = target.closest('a') as HTMLAnchorElement | null;
           if (anchor && anchor.hostname && anchor.hostname !== window.location.hostname) {
-            mp.track('outbound_link_click', {
+            trackEvent('outbound_link_click', {
               href: anchor.href,
-              label: anchor.textContent?.trim(),
+              label: anchor.textContent?.trim() || '',
             });
           }
         });
 
-        const form = document.querySelector('[data-analytics-form="contact"]');
-        if (form instanceof HTMLFormElement) {
+        const form = document.querySelector('[data-analytics-form="contact"]') as HTMLFormElement | null;
+        if (form) {
           const formName = form.getAttribute('data-analytics-form') ?? 'contact';
           let started = false;
           form.addEventListener('focusin', () => {
             if (started) return;
             started = true;
-            mp.track('contact_form_start', { form: formName });
+            trackEvent('contact_form_start', { form: formName });
           });
           form.addEventListener('submit', () => {
-            mp.track('contact_form_submit', { form: formName });
+            trackEvent('contact_form_submit', { form: formName });
           });
         }
 
@@ -225,10 +293,37 @@ const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
           node.addEventListener(
             'play',
             () => {
-              mp.track('project_video_play', { type, ...getContentContext(node) });
+              trackEvent('project_video_play', {
+                type: type || '',
+                ...getContentContext(node),
+              });
             },
             { once: true }
           );
+        });
+
+        // Error tracking
+        window.addEventListener('error', (event: ErrorEvent) => {
+          if (!window.mixpanel) return;
+
+          trackEvent('error', {
+            message: event.message,
+            filename: event.filename,
+            lineno: event.lineno,
+            colno: event.colno,
+            url: window.location.href,
+            user_agent: navigator.userAgent,
+          });
+        });
+
+        window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+          if (!window.mixpanel) return;
+
+          trackEvent('error', {
+            message: 'Unhandled Promise Rejection',
+            reason: event.reason?.toString() || 'Unknown reason',
+            url: window.location.href,
+          });
         });
 
         mp.register({ session_replay_enabled: allowReplay });

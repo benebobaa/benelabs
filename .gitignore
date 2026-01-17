@@ -21,6 +21,9 @@ lerna-debug.log*
 .env.local
 .env.*.local
 
+# Mixpanel (prevent installation instructions with tokens)
+MIXPANEL*.txt
+
 # macOS
 .DS_Store
 Thumbs.db
