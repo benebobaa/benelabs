@@ -1,8 +1,8 @@
 ---
-const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
+const mixpanelToken = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
 ---
 
-{posthogKey ? (
+{mixpanelToken ? (
   <script>
     const getUtmParams = () => {
       const params = new URLSearchParams(window.location.search);
@@ -30,73 +30,89 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
       };
     };
 
-    const setDistinctId = (ph) => {
-      if (!ph?.get_distinct_id) return;
-      const distinctId = ph.get_distinct_id();
+    const setDistinctId = (mp) => {
+      if (!mp?.get_distinct_id) return;
+      const distinctId = mp.get_distinct_id();
       if (!distinctId) return;
-      window.__posthogDistinctId = distinctId;
-      document.dispatchEvent(new CustomEvent('posthog:ready', { detail: { distinctId } }));
+      window.__mixpanelDistinctId = distinctId;
+      document.dispatchEvent(new CustomEvent('mixpanel:ready', { detail: { distinctId } }));
     };
 
-    const loadPosthog = async () => {
-      if (posthog) return posthog;
-      const module = await import('posthog-js');
-      posthog = module.default;
-      return posthog;
+    const loadMixpanel = async () => {
+      if (mixpanel) return mixpanel;
+      const module = await import('mixpanel-browser');
+      mixpanel = module.default;
+      return mixpanel;
     };
 
-    const POSTHOG_KEY = import.meta.env.PUBLIC_POSTHOG_KEY;
-    const POSTHOG_HOST = import.meta.env.PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
-    const SESSION_REPLAY_ENABLED = (import.meta.env.PUBLIC_POSTHOG_SESSION_REPLAY || 'false') === 'true';
-    const AUTOCAPTURE_ENABLED = (import.meta.env.PUBLIC_POSTHOG_AUTOCAPTURE || 'true') === 'true';
-    let posthog;
+    const MIXPANEL_TOKEN = import.meta.env.PUBLIC_MIXPANEL_TOKEN;
+    const MIXPANEL_API_HOST = import.meta.env.PUBLIC_MIXPANEL_API_HOST || 'https://api.mixpanel.com';
+    const AUTOCAPTURE_ENABLED = (import.meta.env.PUBLIC_MIXPANEL_AUTOCAPTURE || 'false') === 'true';
+    const TRACK_PAGEVIEW = (import.meta.env.PUBLIC_MIXPANEL_TRACK_PAGEVIEW || 'false') === 'true';
+    const SESSION_REPLAY_ENABLED = (import.meta.env.PUBLIC_MIXPANEL_SESSION_REPLAY || 'false') === 'true';
+    const SESSION_REPLAY_PERCENT = Number.parseInt(
+      import.meta.env.PUBLIC_MIXPANEL_SESSION_REPLAY_PERCENT || '0',
+      10
+    );
+    let mixpanel;
 
     const isDebug = () => {
       if (typeof window === 'undefined') return false;
-      return new URLSearchParams(window.location.search).has('debug_posthog');
+      return new URLSearchParams(window.location.search).has('debug_mixpanel');
     };
 
     const log = (...args) => {
       if (isDebug()) {
-        console.log('[PostHog Debug]', ...args);
+        console.log('[Mixpanel Debug]', ...args);
       }
     };
 
-    const initPosthog = async () => {
-      if (!POSTHOG_KEY || window.__posthogInitialized) return;
-      window.__posthogInitialized = true;
-      
-      try {
-        const ph = await loadPosthog();
-        if (!ph) return;
+    const getReplayPercent = (allowReplay) => {
+      if (!allowReplay) return 0;
+      const percent = Number.isFinite(SESSION_REPLAY_PERCENT) ? SESSION_REPLAY_PERCENT : 0;
+      return Math.min(Math.max(percent, 0), 100);
+    };
 
-        ph.init(POSTHOG_KEY, {
-          api_host: POSTHOG_HOST,
+    const initMixpanel = async () => {
+      if (!MIXPANEL_TOKEN || window.__mixpanelInitialized) return;
+      window.__mixpanelInitialized = true;
+
+      try {
+        const mp = await loadMixpanel();
+        if (!mp) return;
+
+        const allowReplay =
+          SESSION_REPLAY_ENABLED && document.body.getAttribute('data-session-replay') === 'true';
+        const replayPercent = getReplayPercent(allowReplay);
+
+        mp.init(MIXPANEL_TOKEN, {
+          api_host: MIXPANEL_API_HOST,
           autocapture: AUTOCAPTURE_ENABLED,
-          capture_pageview: false,
-          capture_pageleave: false,
-          disable_session_recording: true,
+          track_pageview: TRACK_PAGEVIEW,
           persistence: 'localStorage',
+          record_sessions_percent: replayPercent,
+          record_heatmap_data: allowReplay && replayPercent > 0,
+          debug: isDebug(),
         });
 
-        window.posthog = ph;
-        setDistinctId(ph);
-        log('PostHog initialized', { host: POSTHOG_HOST });
+        window.mixpanel = mp;
+        setDistinctId(mp);
+        log('Mixpanel initialized', { host: MIXPANEL_API_HOST });
 
-        ph.register_once({ landing_path: window.location.pathname });
+        mp.register_once({ landing_path: window.location.pathname });
         if (document.referrer) {
-          ph.register_once({ landing_referrer: document.referrer });
+          mp.register_once({ landing_referrer: document.referrer });
         }
 
         const utms = getUtmParams();
         if (Object.keys(utms).length) {
-          ph.register(utms);
-          ph.register_once(withPrefix('first_touch_', utms));
-          ph.people.set(utms);
-          ph.people.set_once(withPrefix('first_touch_', utms));
+          mp.register(utms);
+          mp.register_once(withPrefix('first_touch_', utms));
+          mp.people?.set(utms);
+          mp.people?.set_once(withPrefix('first_touch_', utms));
         }
 
-        ph.capture('page_view', {
+        mp.track('page_view', {
           path: window.location.pathname,
           title: document.title,
           referrer: document.referrer,
@@ -104,14 +120,14 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
 
         const listNodes = document.querySelectorAll('[data-analytics-list]');
         listNodes.forEach((listNode) => {
-          ph.capture('content_list_view', {
+          mp.track('content_list_view', {
             list: listNode.getAttribute('data-analytics-list'),
           });
         });
 
         const contentNode = document.querySelector('[data-analytics-content]');
         if (contentNode) {
-          ph.capture('content_view', {
+          mp.track('content_view', {
             type: contentNode.getAttribute('data-analytics-content'),
             slug: contentNode.getAttribute('data-analytics-slug'),
             title: contentNode.getAttribute('data-analytics-title'),
@@ -126,7 +142,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
             const progress = Math.min(Math.max((window.innerHeight - rect.top) / height, 0), 1);
             if (!engaged && progress >= 0.5) {
               engaged = true;
-              ph.capture('content_engaged', {
+              mp.track('content_engaged', {
                 type: contentNode.getAttribute('data-analytics-content'),
                 slug: contentNode.getAttribute('data-analytics-slug'),
                 title: contentNode.getAttribute('data-analytics-title'),
@@ -135,7 +151,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
             }
             if (!completed && progress >= 0.9) {
               completed = true;
-              ph.capture('content_completed', {
+              mp.track('content_completed', {
                 type: contentNode.getAttribute('data-analytics-content'),
                 slug: contentNode.getAttribute('data-analytics-slug'),
                 title: contentNode.getAttribute('data-analytics-title'),
@@ -159,19 +175,19 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
             const type = analyticsNode.getAttribute('data-analytics');
             const label = analyticsNode.getAttribute('data-label') ?? analyticsNode.textContent?.trim();
             if (type === 'cta') {
-              ph.capture('cta_click', { label, href: analyticsNode.getAttribute('href') });
+              mp.track('cta_click', { label, href: analyticsNode.getAttribute('href') });
             }
             if (type === 'nav') {
-              ph.capture('nav_click', { label, href: analyticsNode.getAttribute('href') });
+              mp.track('nav_click', { label, href: analyticsNode.getAttribute('href') });
             }
             if (type === 'email') {
-              ph.capture('contact_email_click', { href: analyticsNode.getAttribute('href') });
+              mp.track('contact_email_click', { href: analyticsNode.getAttribute('href') });
             }
             if (type === 'project-link') {
-              ph.capture('project_link_click', { label, href: analyticsNode.getAttribute('href') });
+              mp.track('project_link_click', { label, href: analyticsNode.getAttribute('href') });
             }
             if (type === 'project-video') {
-              ph.capture('project_video_play', {
+              mp.track('project_video_play', {
                 label,
                 href: analyticsNode.getAttribute('href'),
                 ...getContentContext(analyticsNode),
@@ -181,7 +197,7 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
 
           const anchor = target.closest('a');
           if (anchor && anchor.hostname && anchor.hostname !== window.location.hostname) {
-            ph.capture('outbound_link_click', {
+            mp.track('outbound_link_click', {
               href: anchor.href,
               label: anchor.textContent?.trim(),
             });
@@ -195,10 +211,10 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
           form.addEventListener('focusin', () => {
             if (started) return;
             started = true;
-            ph.capture('contact_form_start', { form: formName });
+            mp.track('contact_form_start', { form: formName });
           });
           form.addEventListener('submit', () => {
-            ph.capture('contact_form_submit', { form: formName });
+            mp.track('contact_form_submit', { form: formName });
           });
         }
 
@@ -209,25 +225,18 @@ const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY;
           node.addEventListener(
             'play',
             () => {
-              ph.capture('project_video_play', { type, ...getContentContext(node) });
+              mp.track('project_video_play', { type, ...getContentContext(node) });
             },
             { once: true }
           );
         });
 
-        const allowReplay =
-          SESSION_REPLAY_ENABLED && document.body.getAttribute('data-session-replay') === 'true';
-        if (allowReplay) {
-          ph.startSessionRecording?.();
-        } else {
-          ph.stopSessionRecording?.();
-        }
-        ph.register({ session_replay_enabled: allowReplay });
+        mp.register({ session_replay_enabled: allowReplay });
       } catch (err) {
-        log('Error initializing PostHog', err);
+        log('Error initializing Mixpanel', err);
       }
     };
 
-    initPosthog();
+    initMixpanel();
   </script>
 ) : null}

@@ -33,17 +33,21 @@ The frontend queries these document types and fields:
 - `project`: title, slug, summary (optional), content/body/longContent (Portable Text), coverImage, techStack (array), links (label/url), demoVideo (url/title/caption/poster), featured, publishedAt, seo
 - `page`: title, slug, intro (optional), content/body/contentBlocks (Portable Text), seo
 
-## PostHog Analytics
+## Mixpanel Analytics
 
-PostHog is wired for manual funnel events plus autocapture (heatmaps-ready), with UTM attribution and optional session replay.
+Mixpanel is wired for manual funnel events with UTM attribution and optional session replay (off by default).
 
 Environment variables:
 
 ```bash
-PUBLIC_POSTHOG_KEY=""
-PUBLIC_POSTHOG_HOST="https://app.posthog.com"
-PUBLIC_POSTHOG_SESSION_REPLAY="false"
-PUBLIC_POSTHOG_AUTOCAPTURE="true"
+PUBLIC_MIXPANEL_TOKEN=""
+PUBLIC_MIXPANEL_API_HOST="https://api.mixpanel.com"
+PUBLIC_MIXPANEL_AUTOCAPTURE="false"
+PUBLIC_MIXPANEL_TRACK_PAGEVIEW="false"
+PUBLIC_MIXPANEL_SESSION_REPLAY="false"
+PUBLIC_MIXPANEL_SESSION_REPLAY_PERCENT="0"
+MIXPANEL_PROJECT_TOKEN="" # optional; defaults to PUBLIC_MIXPANEL_TOKEN when unset
+MIXPANEL_API_HOST="api.mixpanel.com"
 ```
 
 Event taxonomy (manual + server, 12-18 events):
@@ -70,11 +74,11 @@ Attribution:
 - Last-touch UTMs are stored as person props with `utm_*`.
 
 Session replay:
-- Session replay only starts on pages with `enableSessionReplay={true}` (currently `/contact`) and when `PUBLIC_POSTHOG_SESSION_REPLAY="true"`.
+- Session replay only starts on pages with `enableSessionReplay={true}` (currently `/contact`) and when `PUBLIC_MIXPANEL_SESSION_REPLAY="true"` with a non-zero sampling percent.
 
 ## Contact Form (Resend)
 
-The `/contact` form posts to `/api/contact`, which sends email via Resend and emits server-side PostHog events when the key is configured. The repo uses the Vercel serverless adapter with `output: 'static'`; swap adapters if you deploy elsewhere.
+The `/contact` form posts to `/api/contact`, which sends email via Resend and emits server-side Mixpanel events when the token is configured. The repo uses the Vercel serverless adapter with `output: 'static'`; swap adapters if you deploy elsewhere.
 
 Environment variables:
 

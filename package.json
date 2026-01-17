@@ -16,7 +16,8 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",
-    "posthog-js": "^1.313.0",
+    "mixpanel": "^0.20.0",
+    "mixpanel-browser": "^2.73.0",
     "tailwindcss": "^4.1.18"
   }
 }

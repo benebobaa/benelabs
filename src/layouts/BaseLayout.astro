@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import PostHog from '../components/PostHog.astro';
+import Mixpanel from '../components/Mixpanel.astro';
 
 const {
   title = 'Benelabs',
@@ -77,6 +77,6 @@ const structuredDataJson = structuredData
       </main>
       <SiteFooter />
     </div>
-    <PostHog />
+    <Mixpanel />
   </body>
 </html>

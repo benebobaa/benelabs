@@ -51,7 +51,6 @@ const body =
         action="/api/contact"
         method="post"
         data-analytics-form="contact"
-        data-ph-no-capture
       >
         <input type="hidden" name="distinctId" data-analytics-distinct-id />
         <div class="grid gap-2">
@@ -62,7 +61,6 @@ const body =
             name="name"
             type="text"
             placeholder="Your name"
-            data-ph-mask
           />
         </div>
         <div class="grid gap-2">
@@ -74,7 +72,6 @@ const body =
             type="email"
             placeholder="you@company.com"
             required
-            data-ph-mask
           />
         </div>
         <div class="grid gap-2">
@@ -85,7 +82,6 @@ const body =
             name="details"
             placeholder="Tell us about your timeline, goals, and scope."
             required
-            data-ph-mask
           ></textarea>
         </div>
         <button class="button-primary w-fit" type="submit" data-analytics="contact-submit">
@@ -106,13 +102,13 @@ const body =
       distinctInput.value = value;
     };
 
-    updateDistinct(window.__posthogDistinctId);
+    updateDistinct(window.__mixpanelDistinctId);
 
     form?.addEventListener('submit', () => {
-      updateDistinct(window.__posthogDistinctId);
+      updateDistinct(window.__mixpanelDistinctId);
     });
 
-    document.addEventListener('posthog:ready', (event) => {
+    document.addEventListener('mixpanel:ready', (event) => {
       updateDistinct(event.detail?.distinctId);
     });
   </script>

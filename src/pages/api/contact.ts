@@ -1,13 +1,19 @@
-import type { APIRoute } from 'astro';
 import { createHash, randomUUID } from 'crypto';
+
+import type { APIRoute } from 'astro';
+import Mixpanel from 'mixpanel';
 
 export const prerender = false;
 
 const RESEND_API_KEY = import.meta.env.RESEND_API_KEY as string | undefined;
 const RESEND_FROM_EMAIL = import.meta.env.RESEND_FROM_EMAIL as string | undefined;
 const RESEND_TO_EMAIL = import.meta.env.RESEND_TO_EMAIL as string | undefined;
-const POSTHOG_HOST = (import.meta.env.PUBLIC_POSTHOG_HOST as string | undefined) ?? 'https://app.posthog.com';
-const POSTHOG_KEY = import.meta.env.PUBLIC_POSTHOG_KEY as string | undefined;
+const MIXPANEL_PROJECT_TOKEN = import.meta.env.MIXPANEL_PROJECT_TOKEN as string | undefined;
+const MIXPANEL_TOKEN =
+  MIXPANEL_PROJECT_TOKEN || (import.meta.env.PUBLIC_MIXPANEL_TOKEN as string | undefined);
+const MIXPANEL_API_HOST =
+  (import.meta.env.MIXPANEL_API_HOST as string | undefined) ??
+  (import.meta.env.PUBLIC_MIXPANEL_API_HOST as string | undefined);
 
 const normalize = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
@@ -42,27 +48,39 @@ const parseBody = async (request: Request): Promise<Record<string, string>> => {
 const hashEmail = (email: string) =>
   createHash('sha256').update(email.trim().toLowerCase()).digest('hex');
 
-const capturePosthog = async (
+const normalizeHost = (value: string | undefined) => {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.includes('://')) {
+    try {
+      return new URL(trimmed).host;
+    } catch {
+      return trimmed;
+    }
+  }
+  return trimmed.replace(/\/$/, '');
+};
+
+const mixpanel = MIXPANEL_TOKEN
+  ? Mixpanel.init(MIXPANEL_TOKEN, {
+      host: normalizeHost(MIXPANEL_API_HOST) ?? 'api.mixpanel.com',
+    })
+  : null;
+
+const captureMixpanel = async (
   event: string,
   distinctId: string,
   properties: Record<string, unknown>
 ) => {
-  if (!POSTHOG_KEY) return;
-  const url = `${POSTHOG_HOST.replace(/\/$/, '')}/capture/`;
-  try {
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        api_key: POSTHOG_KEY,
-        event,
-        distinct_id: distinctId,
-        properties,
-      }),
-    });
-  } catch {
-    // Intentionally ignore analytics failures.
-  }
+  if (!mixpanel) return;
+  await new Promise<void>((resolve) => {
+    try {
+      mixpanel.track(event, { distinct_id: distinctId, ...properties }, () => resolve());
+    } catch {
+      resolve();
+    }
+  });
 };
 
 const prefersJson = (request: Request) =>
@@ -113,7 +131,7 @@ export const POST: APIRoute = async ({ request }) => {
   const name = normalize(data.name);
   const email = normalize(data.email).toLowerCase();
   const details = normalize(data.details);
-  const distinctId = normalize(data.distinctId || data.distinct_id || data.posthog_distinct_id);
+  const distinctId = normalize(data.distinctId || data.distinct_id || data.mixpanel_distinct_id);
 
   if (!email || !email.includes('@') || !details) {
     const payload = { ok: false, error: 'Please provide a valid email and project details.' };
@@ -121,11 +139,11 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const emailHash = hashEmail(email);
-  const safeDistinctId = distinctId || emailHash || randomUUID();
-  const allowAnalytics = Boolean(POSTHOG_KEY);
+  const safeDistinctId = distinctId || randomUUID();
+  const allowAnalytics = Boolean(mixpanel);
 
   if (allowAnalytics) {
-    await capturePosthog('contact_form_received', safeDistinctId, {
+    await captureMixpanel('contact_form_received', safeDistinctId, {
       email_hash: emailHash,
       name_provided: Boolean(name),
       message_length: details.length,
@@ -262,10 +280,10 @@ export const POST: APIRoute = async ({ request }) => {
     console.error('Resend API Error (Admin):', JSON.stringify(errorData, null, 2));
 
     if (allowAnalytics) {
-      await capturePosthog('contact_email_failed', safeDistinctId, {
+      await captureMixpanel('contact_email_failed', safeDistinctId, {
         email_hash: emailHash,
         provider: 'resend',
-        error: errorData
+        error: JSON.stringify(errorData),
       });
     }
     const payload = { ok: false, error: 'We could not send your message. Please try again.' };
@@ -273,7 +291,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   if (allowAnalytics) {
-    await capturePosthog('contact_email_sent', safeDistinctId, {
+    await captureMixpanel('contact_email_sent', safeDistinctId, {
       email_hash: emailHash,
       provider: 'resend',
     });
